@@ -1,0 +1,8 @@
+package com.youcode.SmartShop.enums;
+
+public enum OrderStatus {
+    PENDING,
+    CONFIRMED,
+    CANCELED,
+    REJECTED
+}
