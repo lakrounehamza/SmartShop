@@ -2,7 +2,7 @@ package com.youcode.SmartShop.dtos.response;
 
 import java.math.BigDecimal;
 
-public record ProduitRepositoryDto (
+public record ProduitResponseDto(
      Long id,
      String nom,
      BigDecimal prix,
