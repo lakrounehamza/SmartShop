@@ -9,17 +9,16 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-public class CommandeResponseDto {
-    private Long id;
-    private long client_id;
-    private List<OrderItem> aticles;
-    private List<Paiement> paiement;
-    private LocalDate date;
-    private BigDecimal sousTotal;
-    private int remise;
-    private int TVA;
-    private BigDecimal total;
-    private String codePromo;
-    private OrderStatus statut;
-    private BigDecimal montant_restant;
-}
+public record CommandeResponseDto(
+        Long id,
+        long client_id,
+        List<OrderItem> aticles,
+        List<Paiement> paiement,
+        LocalDate date,
+        BigDecimal sousTotal,
+        int remise,
+        int TVA,
+        BigDecimal total,
+        String codePromo,
+        OrderStatus statut,
+        BigDecimal montant_restant) {}

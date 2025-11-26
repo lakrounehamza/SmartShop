@@ -2,9 +2,8 @@ package com.youcode.SmartShop.dtos.response;
 
 import java.math.BigDecimal;
 
-public class ProduitRepositoryDto {
-    private Long id;
-    private String nom;
-    private BigDecimal prix;
-    private int stock;
-}
+public record ProduitRepositoryDto (
+     Long id,
+     String nom,
+     BigDecimal prix,
+     int stock){}

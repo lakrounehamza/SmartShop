@@ -1,25 +1,17 @@
 package com.youcode.SmartShop.dtos.response;
 
 import com.youcode.SmartShop.enums.PaymentType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class VirementResponseDto {
-    private long id   ;
-    private   String numero_paiement;
-    private BigDecimal montant ;
-    private PaymentType type_paiement ;
-    private LocalDate date_paiement ;
-    private LocalDate  date_encaissement ;
-    private String reference;
-    private String banque;
-}
+
+public record VirementResponseDto (
+     long id   ,
+       String numero_paiement,
+     BigDecimal montant ,
+     PaymentType type_paiement ,
+     LocalDate date_paiement ,
+     LocalDate  date_encaissement ,
+     String reference,
+     String banque){}
