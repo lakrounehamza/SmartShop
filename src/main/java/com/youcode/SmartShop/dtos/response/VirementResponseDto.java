@@ -6,12 +6,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
-public record VirementResponseDto (
-     long id   ,
-       String numero_paiement,
-     BigDecimal montant ,
-     PaymentType type_paiement ,
-     LocalDate date_paiement ,
-     LocalDate  date_encaissement ,
-     String reference,
-     String banque){}
+public record VirementResponseDto(
+        long id,
+        String numero_paiement,
+        BigDecimal montant,
+        PaymentType type_paiement,
+        LocalDate date_paiement,
+        LocalDate date_encaissement,
+        String reference,
+        String banque) {
+}
