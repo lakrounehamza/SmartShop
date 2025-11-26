@@ -17,7 +17,6 @@ public abstract class Paiement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id   ;
-    private   long  id_commande ;
     private   String numero_paiement;
     private BigDecimal montant ;
     private PaymentType type_paiement ;
