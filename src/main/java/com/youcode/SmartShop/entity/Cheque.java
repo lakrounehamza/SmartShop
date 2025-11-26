@@ -12,8 +12,8 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Cheque   extends  Paiement{
-    private String nenuro  ;
-private String banque   ;
-private LocalDate echance  ;
+public class Cheque extends Paiement {
+    private String nenuro;
+    private String banque;
+    private LocalDate echance;
 }
