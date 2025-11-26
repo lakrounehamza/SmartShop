@@ -22,9 +22,9 @@ public class Commande {
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
-    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> aticles;
-    @OneToMany(mappedBy = "paiement", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Paiement> paiement;
     private LocalDate date;
     private BigDecimal sousTotal;
