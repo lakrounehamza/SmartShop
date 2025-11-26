@@ -7,10 +7,11 @@ import java.time.LocalDate;
 
 
 public record EspecesResponseDto(
-      long id   ,
+        long id,
         String numero_paiement,
-      BigDecimal montant ,
-      PaymentType type_paiement ,
-      LocalDate date_paiement ,
-      LocalDate  date_encaissement ,
-      String Recu   ){}
+        BigDecimal montant,
+        PaymentType type_paiement,
+        LocalDate date_paiement,
+        LocalDate date_encaissement,
+        String Recu) {
+}
