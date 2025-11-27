@@ -18,7 +18,8 @@ public class Client {
     private Long id;
     private String nom;
     private String email;
-    private CustomerTier niveauFidelite;
+    @Enumerated(EnumType.STRING)
+    private CustomerTier niveauFidelite = CustomerTier.BASIC;
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;

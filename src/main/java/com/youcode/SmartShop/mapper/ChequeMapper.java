@@ -10,3 +10,4 @@ public interface ChequeMapper {
     Cheque toEntity(ChequeCreateRequestDto requestDto);
     ChequeResponseDto toDTO(Cheque entity);
 }
+

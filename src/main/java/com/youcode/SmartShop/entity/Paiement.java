@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public abstract class Paiement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
