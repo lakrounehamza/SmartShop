@@ -1,8 +1,11 @@
 package com.youcode.SmartShop.dtos.request;
 
 import jakarta.validation.constraints.*;
+import lombok.Builder;
+
 import java.math.BigDecimal;
 
+@Builder
 public record ProduitCreateRequestDto(
         @NotBlank(message = "Le nom du produit ne peut pas etre vide.")
         @Size(min = 3, max = 100, message = "Le nom du produit doit etre compris entre 3 et 100 caracteres.")

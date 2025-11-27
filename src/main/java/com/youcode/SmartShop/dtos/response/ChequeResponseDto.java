@@ -1,11 +1,13 @@
 package com.youcode.SmartShop.dtos.response;
 
 import com.youcode.SmartShop.enums.PaymentType;
+import lombok.Builder;
 
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Builder
 public record ChequeResponseDto(
         long id,
         String numero_paiement,
@@ -15,5 +17,6 @@ public record ChequeResponseDto(
         LocalDate date_encaissement,
         String nenuro,
         String banque,
-        LocalDate echance) {
+        LocalDate echance,
+        long commande_id) {
 }

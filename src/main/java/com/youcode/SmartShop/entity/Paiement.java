@@ -3,6 +3,7 @@ package com.youcode.SmartShop.entity;
 import com.youcode.SmartShop.enums.PaymentType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,16 +14,17 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 public abstract class Paiement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id   ;
-    private   String numero_paiement;
-    private BigDecimal montant ;
-    private PaymentType type_paiement ;
-    private LocalDate  date_paiement ;
-    private LocalDate  date_encaissement ;
+    protected long id   ;
+    protected   String numero_paiement;
+    protected BigDecimal montant ;
+    protected PaymentType type_paiement ;
+    protected LocalDate  date_paiement ;
+    protected LocalDate  date_encaissement ;
     @ManyToOne
     @JoinColumn(name = "commande_id" ,nullable = false)
-    private Commande commande;
+    protected Commande commande;
 }

@@ -2,7 +2,9 @@ package com.youcode.SmartShop.dtos.request;
 
 import com.youcode.SmartShop.enums.UserRole;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 
+@Builder
 public record UserCreateRequestDto(
 
         @NotBlank(message = "Le nom de user ne peut pas etre vide.")

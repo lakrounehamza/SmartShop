@@ -2,10 +2,12 @@ package com.youcode.SmartShop.dtos.request;
 
 import com.youcode.SmartShop.enums.PaymentType;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Builder
 public record VirementCreateRequestDto(
 
         @NotBlank(message = "Le numero de paiement ne peut pas etre vide.")

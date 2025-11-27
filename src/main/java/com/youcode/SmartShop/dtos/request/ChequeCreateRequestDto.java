@@ -2,10 +2,12 @@ package com.youcode.SmartShop.dtos.request;
 
 import com.youcode.SmartShop.enums.PaymentType;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Builder
 public record ChequeCreateRequestDto(
         @NotBlank(message = "Le numéro de paiement ne peut pas être vide.")
         String numero_paiement,
@@ -27,5 +29,6 @@ public record ChequeCreateRequestDto(
         String banque,
         @NotNull(message = "La date d'échéance ne peut pas être nulle.")
         @FutureOrPresent(message = "La date d'échéance doit être dans le présent ou dans le futur.")
-        LocalDate echance) {
+        LocalDate echance
+        , long commande_id) {
 }

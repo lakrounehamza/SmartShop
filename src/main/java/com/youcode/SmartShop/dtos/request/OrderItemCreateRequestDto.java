@@ -1,8 +1,11 @@
 package com.youcode.SmartShop.dtos.request;
 
 import jakarta.validation.constraints.*;
+import lombok.Builder;
+
 import java.math.BigDecimal;
 
+@Builder
 public record OrderItemCreateRequestDto(
 
         @NotNull(message = "La quantite ne peut pas etre nulle.")
