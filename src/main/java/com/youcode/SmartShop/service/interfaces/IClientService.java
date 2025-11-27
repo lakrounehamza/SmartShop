@@ -5,4 +5,5 @@ import com.youcode.SmartShop.dtos.response.ClientResponseDto;
 
 public interface IClientService {
     ClientResponseDto save(ClientCreateRequestDto request);
+    ClientResponseDto getClientById(Long id);
 }

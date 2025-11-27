@@ -5,6 +5,7 @@ import com.youcode.SmartShop.dtos.response.ClientResponseDto;
 import com.youcode.SmartShop.entity.Client;
 import com.youcode.SmartShop.entity.User;
 import com.youcode.SmartShop.exception.DuplicateClientException;
+import com.youcode.SmartShop.exception.NotFoundException;
 import com.youcode.SmartShop.mapper.ClientMapper;
 import com.youcode.SmartShop.mapper.UserMapper;
 import com.youcode.SmartShop.repository.ClientRepository;
@@ -24,7 +25,7 @@ public class ClientServiceImpl implements IClientService {
     private  final UserMapper  userMapper;
 
     @Override
-    public ClientResponseDto save(@Valid ClientCreateRequestDto request) {
+    public ClientResponseDto save(@Valid  ClientCreateRequestDto request) {
         if(userRepository.existsByUsername(request.user().username()))
             throw  new DuplicateClientException("Un client avec ce nom d'user existe deja");
         if(clientRepository.existsByEmail(request.email()))
@@ -36,4 +37,12 @@ public class ClientServiceImpl implements IClientService {
         Client  clientSaved = clientRepository.save(client);
         return    clientMapper.toDTO(clientSaved);
     }
+
+    @Override
+    public ClientResponseDto getClientById(Long id) {
+        return clientMapper.toDTO(clientRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Client not found with id: " + id)));
+    }
+
+
 }
