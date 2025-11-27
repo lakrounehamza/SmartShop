@@ -1,6 +1,7 @@
 package com.youcode.SmartShop.service.impl;
 
 import com.youcode.SmartShop.dtos.request.ClientCreateRequestDto;
+import com.youcode.SmartShop.dtos.request.NiveauFideliteUpdateDto;
 import com.youcode.SmartShop.dtos.response.ClientResponseDto;
 import com.youcode.SmartShop.entity.Client;
 import com.youcode.SmartShop.entity.User;
@@ -42,6 +43,15 @@ public class ClientServiceImpl implements IClientService {
     public ClientResponseDto getClientById(Long id) {
         return clientMapper.toDTO(clientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Client not found with id: " + id)));
+    }
+
+    @Override
+    public ClientResponseDto updateNiveauFidelite(Long  id  ,NiveauFideliteUpdateDto request) {
+       Client client = clientRepository.findById(id)
+               .orElseThrow(() -> new NotFoundException("rouvez le client avec l'id "+id+" pour modification"));
+       client.setNiveauFidelite(request.niveauFidelite());
+        clientRepository.save(client);
+        return  clientMapper.toDTO(client);
     }
 
 
