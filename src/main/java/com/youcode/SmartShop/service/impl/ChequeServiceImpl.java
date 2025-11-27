@@ -3,34 +3,51 @@ package com.youcode.SmartShop.service.impl;
 import com.youcode.SmartShop.dtos.request.ChequeCreateRequestDto;
 import com.youcode.SmartShop.dtos.response.ChequeResponseDto;
 import com.youcode.SmartShop.entity.Cheque;
+import com.youcode.SmartShop.exception.NotFoundException;
+import com.youcode.SmartShop.mapper.ChequeMapper;
+import com.youcode.SmartShop.repository.ChequeRepository;
 import com.youcode.SmartShop.service.interfaces.IChequeService;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 
+
+@Service
+@AllArgsConstructor
 public class ChequeServiceImpl implements IChequeService {
+
+    private final ChequeRepository repository;
+    private final ChequeMapper mapper;
+
     @Override
-    public Cheque save(ChequeCreateRequestDto request) {
-        return null;
+    public ChequeResponseDto save(ChequeCreateRequestDto request) {
+        Cheque cheque = mapper.toEntity(request);
+        Cheque chequeSaved = repository.save(cheque);
+        return mapper.toDTO(chequeSaved);
     }
 
     @Override
     public ChequeResponseDto getChequeById(Long id) {
-        return null;
+        return mapper.toDTO(repository.findById(id).orElseThrow(()->new NotFoundException("cheque introuvable avec l'id"+id)));
     }
 
     @Override
     public Page<ChequeResponseDto> getAllCheque(Pageable pageable) {
-        return null;
+        Page<Cheque> cheques  = repository.findAll(pageable);
+        if(cheques.getTotalElements()<1)
+            throw   new NotFoundException("Aucun cheque trouve");
+        return cheques.map(mapper::toDTO);
+
     }
 
     @Override
     public String deleteChequeById(Long id) {
-        return "";
+        if(!repository.existsById(id))
+            throw new NotFoundException("cheque introuvable avec l'id"+id);
+        repository.deleteById(id);
+        return "le cheque supprime avec succes";
     }
 
-    @Override
-    public ChequeResponseDto update(ChequeCreateRequestDto request) {
-        return null;
-    }
 }
