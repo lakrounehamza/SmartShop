@@ -44,13 +44,13 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public ClientResponseDto getClientById(Long id) {
         return clientMapper.toDTO(clientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Client not found with id: " + id)));
+                .orElseThrow(() -> new NotFoundException("client introuvable avec l'id" + id)));
     }
 
     @Override
     public ClientResponseDto updateNiveauFidelite(Long id, NiveauFideliteUpdateDto request) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("trouvez le client avec l'id " + id + " pour modification"));
+                .orElseThrow(() -> new NotFoundException("ne trouvez le client avec l'id " + id + " pour modification"));
         client.setNiveauFidelite(request.niveauFidelite());
         clientRepository.save(client);
         return clientMapper.toDTO(client);
