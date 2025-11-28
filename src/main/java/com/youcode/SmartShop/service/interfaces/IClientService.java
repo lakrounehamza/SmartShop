@@ -11,4 +11,5 @@ public interface IClientService {
     ClientResponseDto getClientById(Long id);
     ClientResponseDto updateNiveauFidelite(Long  id, NiveauFideliteUpdateDto request);
     Page<ClientResponseDto>  getAll(Pageable pageable);
+    void deleteById(Long id);
 }

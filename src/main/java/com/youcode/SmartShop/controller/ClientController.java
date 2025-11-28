@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("api/clients")
 @AllArgsConstructor
@@ -58,5 +60,12 @@ public class ClientController {
     public ResponseEntity<ClinetStatisticResponseDto>  statistic(@PathVariable Long id){
         return ResponseEntity.ok(commandeService.getClientStatistic(id));
     }
-
+    @DeleteMapping("{id}")
+    public ResponseEntity<Object> deleteClient(@PathVariable Long id){
+        service.deleteById(id);
+        return ResponseEntity.ok(Map.of(
+                "message", "client supprime avec succes",
+                "status", "SUCCESS",
+                "id", id
+        ));    }
 }

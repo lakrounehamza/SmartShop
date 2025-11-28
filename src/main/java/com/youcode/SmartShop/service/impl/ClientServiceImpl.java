@@ -63,5 +63,11 @@ public class ClientServiceImpl implements IClientService {
             throw   new NotFoundException("Aucun client trouve");
         return cliens;
     }
+    @Override
+    public void deleteById(Long  id){
+        if(!clientRepository.existsById(id))
+            throw new NotFoundException("client introuvable avec l'id "+id);
+        clientRepository.deleteById(id);
+    }
 
 }
