@@ -4,6 +4,7 @@ import com.youcode.SmartShop.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Data
 public class Commande {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
