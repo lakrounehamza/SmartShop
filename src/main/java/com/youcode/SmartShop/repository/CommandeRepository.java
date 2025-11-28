@@ -5,7 +5,22 @@ import com.youcode.SmartShop.entity.Commande;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 public interface CommandeRepository extends JpaRepository<Commande,Long> {
     Page<Commande> findByClient_Id(Long id, Pageable pageable);
+    @Query("select sum(c.total) from  Commande c where c.client.id =:id")
+    Optional<BigDecimal> findCumuleByClient_Id(Long id);
+    @Query("select min(c.date) from  Commande c where c.client.id =:id")
+    Optional<LocalDate> findLastDateByClient_id(Long id);
+    @Query("select max(c.date) from  Commande c where c.client.id =:id")
+    Optional<LocalDate> findFirstDateByClient_id(Long id);
+    @Query("select count(c.id) from  Commande c where c.client.id =:id")
+    int findCountByClinet_id(long  id);
+
 }
