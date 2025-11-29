@@ -71,4 +71,28 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
+    @ExceptionHandler(ProductStockUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleProductStockUnavailableException(
+            ProductStockUnavailableException e,
+            HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+    @ExceptionHandler(CommandeCreationFailedException.class)
+    public ResponseEntity<ErrorResponse> handleCommandeCreationFailedException(
+            ProductStockUnavailableException e,
+            HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 }
