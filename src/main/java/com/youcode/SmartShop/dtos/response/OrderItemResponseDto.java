@@ -10,6 +10,6 @@ public record OrderItemResponseDto(
         int quantite,
         double prix,
         BigDecimal totalLigne,
-        long commande_id,
+        //long commande_id,
         long produit_id) {
 }

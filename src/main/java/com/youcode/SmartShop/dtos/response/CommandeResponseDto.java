@@ -14,7 +14,7 @@ import java.util.List;
 public record CommandeResponseDto(
         Long id,
         long client_id,
-        List<OrderItem> aticles,
+        List<OrderItemResponseDto> aticles,
         List<Paiement> paiement,
         LocalDate date,
         BigDecimal sousTotal,

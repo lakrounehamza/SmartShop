@@ -14,9 +14,9 @@ public record OrderItemCreateRequestDto(
         @NotNull(message = "Le prix ne peut pas etre nul.")
         @DecimalMin(value = "0.0", inclusive = false, message = "Le prix doit etre superieur a zero.")
         double prix,
-        @NotNull(message = "L'ID de la commande ne peut pas etre nul.")
-        @Positive(message = "L'ID de la commande doit etre un nombre positif.")
-        long commande_id,
+//        @NotNull(message = "L'ID de la commande ne peut pas etre nul.")
+//        @Positive(message = "L'ID de la commande doit etre un nombre positif.")
+//        long commande_id,
         @NotNull(message = "L'ID du produit ne peut pas etre nul.")
         @Positive(message = "L'ID du produit doit etre un nombre positif.")
         long produit_id
