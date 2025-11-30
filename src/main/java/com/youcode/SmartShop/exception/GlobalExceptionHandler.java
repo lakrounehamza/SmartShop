@@ -85,7 +85,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(CommandeCreationFailedException.class)
     public ResponseEntity<ErrorResponse> handleCommandeCreationFailedException(
-            ProductStockUnavailableException e,
+            CommandeCreationFailedException e,
             HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
                 e.getMessage(),
