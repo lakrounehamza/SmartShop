@@ -22,7 +22,7 @@ public class Commande {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
     @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> aticles = new ArrayList<>();
+    private List<OrderItem> aticles ;
     @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Paiement> paiement = new ArrayList<>();
     private LocalDate date = LocalDate.now();

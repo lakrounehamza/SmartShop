@@ -23,7 +23,7 @@ public class OrderItem {
     @JoinColumn(name = "produit_id", nullable = false)
     private Product product;
     private int quantite;
-    private double prix;
+    private BigDecimal prix;
     private BigDecimal totalLigne;
 
     @ManyToOne
