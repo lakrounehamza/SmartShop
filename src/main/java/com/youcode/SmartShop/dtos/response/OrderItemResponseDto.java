@@ -1,15 +1,17 @@
 package com.youcode.SmartShop.dtos.response;
 
 
+import com.youcode.SmartShop.entity.Product;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 
 @Builder
 public record OrderItemResponseDto(
+        long id,
         int quantite,
-        double prix,
+        BigDecimal prix,
         BigDecimal totalLigne,
         //long commande_id,
-        long produit_id) {
+        Product product) {
 }

@@ -35,6 +35,7 @@ public class ProductController {
     public ResponseEntity<Page<ProduitResponseDto>>  getAll(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(productService.getAll(pageable));
     }
+    @GetMapping("{id}")
     public ResponseEntity<ProduitResponseDto> getById(@PathVariable Long  id){
         ProduitResponseDto response = productService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);

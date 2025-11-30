@@ -1,6 +1,7 @@
 package com.youcode.SmartShop.controller;
 
 import com.youcode.SmartShop.dtos.request.CommandeCreateRequestDto;
+import com.youcode.SmartShop.dtos.request.CommandeCreateWithMultiItemRequestDto;
 import com.youcode.SmartShop.dtos.response.CommandeResponseDto;
 import com.youcode.SmartShop.service.interfaces.ICommandeService;
 import jakarta.validation.Valid;
@@ -20,8 +21,8 @@ public class CommandeController {
     private final ICommandeService service;
 
     @PostMapping
-    public ResponseEntity<CommandeResponseDto> save(@Valid @RequestBody CommandeCreateRequestDto request) {
-        CommandeResponseDto response = service.save(request);
+    public ResponseEntity<CommandeResponseDto> save(@Valid @RequestBody CommandeCreateWithMultiItemRequestDto request) {
+        CommandeResponseDto response = service.saveWithMultiOrderItem(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -46,7 +47,7 @@ public class CommandeController {
             @PageableDefault(size = 10, sort = "date", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<CommandeResponseDto> response = service.getAll(pageable);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }
