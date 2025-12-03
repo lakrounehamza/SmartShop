@@ -134,13 +134,14 @@ public class CommandeServiceImpl implements ICommandeService {
         if(status.equals(OrderStatus.CONFIRMED) ){
             if( commande.getMontant_restant().compareTo(BigDecimal.ZERO)!=0)
                 throw new IncorrectInputException("tu  veux confirme  un commande ne  pas   pay ");
-            commande.getAticles().stream().map(orderItem -> {
+            commande.getAticles().stream().forEach(orderItem -> {
                 Product product =orderItem.getProduct();
+                System.out.println(product.getStock());
                 product.setStock(product.getStock()-orderItem.getQuantite());
                 productRepository.save(product);
-                return null;
             });
-            commande.getPaiement().stream().map(paiement -> {
+
+            commande.getPaiement().stream().forEach(paiement -> {
                 paiement.setStatut(PaymentStatus.ENCAISSE);
                 if (paiement instanceof Cheque){
                     Cheque cheque = (Cheque) paiement;
@@ -153,7 +154,6 @@ public class CommandeServiceImpl implements ICommandeService {
                     Especes  especes  = (Especes)  paiement;
                     especesRepository.save(especes);
                 }
-                return   null;
             });
 
         }
@@ -177,4 +177,5 @@ public class CommandeServiceImpl implements ICommandeService {
         }
         return commandeMapper.toDTO(commandeRepository.save(commande));
     }
+
 }

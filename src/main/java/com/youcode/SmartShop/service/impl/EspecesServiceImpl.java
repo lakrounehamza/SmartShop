@@ -5,6 +5,7 @@ import com.youcode.SmartShop.dtos.response.EspecesResponseDto;
 import com.youcode.SmartShop.entity.Commande;
 import com.youcode.SmartShop.entity.Especes;
 import com.youcode.SmartShop.enums.OrderStatus;
+import com.youcode.SmartShop.enums.PaymentStatus;
 import com.youcode.SmartShop.exception.IncorrectInputException;
 import com.youcode.SmartShop.exception.NotFoundException;
 import com.youcode.SmartShop.mapper.EspecesMapper;
@@ -41,8 +42,9 @@ public class EspecesServiceImpl implements IEspecesService {
             commande.setStatut(OrderStatus.CANCELED);
         }
         commandeRepository.save(commande);
+        especes.setStatut(PaymentStatus.EN_ATTENTE);
         Especes especesSaved = especesRepository.save(especes);
-        return especesMapper.toDTO(especes);
+        return especesMapper.toDTO(especesSaved);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.youcode.SmartShop.dtos.response.VirementResponseDto;
 import com.youcode.SmartShop.entity.Commande;
 import com.youcode.SmartShop.entity.Virement;
 import com.youcode.SmartShop.enums.OrderStatus;
+import com.youcode.SmartShop.enums.PaymentStatus;
 import com.youcode.SmartShop.exception.IncorrectInputException;
 import com.youcode.SmartShop.exception.NotFoundException;
 import com.youcode.SmartShop.mapper.VirementMapper;
@@ -27,6 +28,7 @@ public class VirementServiceImpl implements IVirementService {
     @Override
     public VirementResponseDto save(VirementCreateRequestDto request) {
         Virement virement  = mapper.toEntity(request);
+        virement.setStatut(PaymentStatus.EN_ATTENTE);
         Virement virementSaved = repository.save(virement);
         Commande commande = commandeRepository.findById(request.commande_id())
                 .orElseThrow(() -> new NotFoundException("Commande introuvable"));

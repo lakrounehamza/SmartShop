@@ -5,6 +5,7 @@ import com.youcode.SmartShop.dtos.response.ChequeResponseDto;
 import com.youcode.SmartShop.entity.Cheque;
 import com.youcode.SmartShop.entity.Commande;
 import com.youcode.SmartShop.enums.OrderStatus;
+import com.youcode.SmartShop.enums.PaymentStatus;
 import com.youcode.SmartShop.exception.IncorrectInputException;
 import com.youcode.SmartShop.exception.NotFoundException;
 import com.youcode.SmartShop.mapper.ChequeMapper;
@@ -43,7 +44,7 @@ public class ChequeServiceImpl implements IChequeService {
             commande.setStatut(OrderStatus.CANCELED);
         }
         commandeRepository.save(commande);
-//        cheque.setCommande(commande);
+        cheque.setStatut(PaymentStatus.EN_ATTENTE);
         Cheque chequeSaved = repository.save(cheque);
         return mapper.toDTO(chequeSaved);
     }
