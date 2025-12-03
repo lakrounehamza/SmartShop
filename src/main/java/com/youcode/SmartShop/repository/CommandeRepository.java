@@ -22,5 +22,7 @@ public interface CommandeRepository extends JpaRepository<Commande,Long> {
     Optional<LocalDate> findFirstDateByClient_id(Long id);
     @Query("select count(c.id) from  Commande c where c.client.id =:id")
     int findCountByClinet_id(long  id);
+    @Query("select count(c.id) from  Commande c where c.statut=1 and c.client.id =:id")
+    int findCountConfirmeByClinet_id(long  id);
 
 }

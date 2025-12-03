@@ -6,6 +6,7 @@ import com.youcode.SmartShop.dtos.request.OrderItemCreateRequestDto;
 import com.youcode.SmartShop.dtos.response.ClinetStatisticResponseDto;
 import com.youcode.SmartShop.dtos.response.CommandeResponseDto;
 import com.youcode.SmartShop.entity.*;
+import com.youcode.SmartShop.enums.CustomerTier;
 import com.youcode.SmartShop.enums.OrderStatus;
 import com.youcode.SmartShop.enums.PaymentStatus;
 import com.youcode.SmartShop.exception.CommandeCreationFailedException;
@@ -126,7 +127,7 @@ public class CommandeServiceImpl implements ICommandeService {
 
         }
     @Override
-    public CommandeResponseDto updateStatus(Long id,OrderStatus status){
+    public CommandeResponseDto updateStatus(Long id,OrderStatus status) {
         if(!commandeRepository.existsById(id))
             throw new NotFoundException("commande introuvable avec l'id "+id);
         Commande commande = commandeRepository.findById(id).get();
@@ -155,6 +156,25 @@ public class CommandeServiceImpl implements ICommandeService {
                     especesRepository.save(especes);
                 }
             });
+
+            commande.setTotal(commande.getTotal().add(commande.getSousTotal()));
+            int countCommande = commandeRepository.findCountConfirmeByClinet_id(commande.getClient().getId());
+            if(countCommande ==2 || commande.getTotal().compareTo(BigDecimal.valueOf(1000)) ==1)
+            {
+                Client client   = commande.getClient();
+                client.setNiveauFidelite(CustomerTier.SILVER);
+                clientRepository.save(client);
+            } else if(countCommande ==9 || commande.getTotal().compareTo(BigDecimal.valueOf(5000)) ==1)
+            {
+                Client client   = commande.getClient();
+                client.setNiveauFidelite(CustomerTier.GOLD);
+                clientRepository.save(client);
+            }else if(countCommande ==19 || commande.getTotal().compareTo(BigDecimal.valueOf(15000)) ==1)
+            {
+                Client client   = commande.getClient();
+                client.setNiveauFidelite(CustomerTier.PLATINUM);
+                clientRepository.save(client);
+            }
 
         }
         else if(status.equals(OrderStatus.CANCELED))
