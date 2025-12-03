@@ -10,6 +10,7 @@ import com.youcode.SmartShop.entity.OrderItem;
 import com.youcode.SmartShop.entity.Product;
 import com.youcode.SmartShop.enums.OrderStatus;
 import com.youcode.SmartShop.exception.CommandeCreationFailedException;
+import com.youcode.SmartShop.exception.IncorrectInputException;
 import com.youcode.SmartShop.exception.NotFoundException;
 import com.youcode.SmartShop.exception.ProductStockUnavailableException;
 import com.youcode.SmartShop.mapper.CommandeMapper;
@@ -64,8 +65,8 @@ public class CommandeServiceImpl implements ICommandeService {
     @Override
     public Page<CommandeResponseDto> getAll(Pageable pageable) {
         Page<Commande> commandes = commandeRepository.findAll(pageable);
-        if (commandes.getTotalElements() < 1)
-            throw new NotFoundException("aucun commande trouve");
+//        if (commandes.getTotalElements() < 1)
+//            throw new NotFoundException("aucun commande trouve");
         return commandes.map(commandeMapper::toDTO);
     }
 
@@ -126,10 +127,21 @@ public class CommandeServiceImpl implements ICommandeService {
         }
     @Override
     public CommandeResponseDto updateStatus(Long id,OrderStatus status){
-        if(commandeRepository.existsById(id))
+        if(!commandeRepository.existsById(id))
             throw new NotFoundException("commande introuvable avec l'id "+id);
         Commande commande = commandeRepository.findById(id).get();
         commande.setStatut(status);
+        if(status.equals(OrderStatus.CONFIRMED) ){
+            if( commande.getMontant_restant().compareTo(BigDecimal.ZERO)!=0)
+                throw new IncorrectInputException("tu  veux confirme  un commande ne  pas   pay ");
+            commande.getAticles().stream().map(orderItem -> {
+                Product product =orderItem.getProduct();
+                product.setStock(product.getStock()-orderItem.getQuantite());
+                productRepository.save(product);
+                return null;
+            });
+
+        }
         return commandeMapper.toDTO(commandeRepository.save(commande));
     }
 }
