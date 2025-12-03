@@ -23,5 +23,6 @@ public record EspecesCreateRequestDto(
         @Future(message = "La date d'encaissement doit etre dans le futur.")
         LocalDate date_encaissement,
         @NotBlank(message = "Le reçu ne peut pas etre vide.")
-        String Recu
+        String recu,
+        long commande_id
 ) {}

@@ -2,7 +2,9 @@ package com.youcode.SmartShop.controller;
 
 import com.youcode.SmartShop.dtos.request.CommandeCreateRequestDto;
 import com.youcode.SmartShop.dtos.request.CommandeCreateWithMultiItemRequestDto;
+import com.youcode.SmartShop.dtos.request.UpdateStatusRequest;
 import com.youcode.SmartShop.dtos.response.CommandeResponseDto;
+import com.youcode.SmartShop.enums.OrderStatus;
 import com.youcode.SmartShop.service.interfaces.ICommandeService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -42,12 +44,21 @@ public class CommandeController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<CommandeResponseDto>> getAll(
+    public ResponseEntity<String> getAll(
             @PathVariable Long id,
-            @PageableDefault(size = 10, sort = "date", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 10) Pageable pageable
     ) {
         Page<CommandeResponseDto> response = service.getAll(pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body("hello");
     }
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<CommandeResponseDto> updateStatus(
+            @PathVariable Long id,
+            @RequestBody UpdateStatusRequest request) {
+
+        OrderStatus status = OrderStatus.valueOf(request.statut());
+        return ResponseEntity.ok(service.updateStatus(id, status));
+    }
+
 
 }

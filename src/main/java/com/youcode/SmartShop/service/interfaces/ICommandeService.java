@@ -16,4 +16,5 @@ public interface ICommandeService {
     ClinetStatisticResponseDto getClientStatistic(Long id);
     CommandeResponseDto saveWithMultiOrderItem(CommandeCreateWithMultiItemRequestDto request);
     CommandeResponseDto updateStatus(Long id,OrderStatus status);
+//    CommandeResponseDto update
 }

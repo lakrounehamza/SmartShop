@@ -26,5 +26,6 @@ public record VirementCreateRequestDto(
         @NotBlank(message = "La reference ne peut pas etre vide.")
         String reference,
         @NotBlank(message = "Le nom de la banque ne peut pas etre vide.")
-        String banque
+        String banque,
+        long commande_id
 ) {}
