@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+
 @SuperBuilder
 public abstract class Paiement {
     @Id

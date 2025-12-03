@@ -14,7 +14,7 @@ public record ClientCreateRequestDto(
         String nom,
         @Email(message = "l'email doit entre valide")
         String email,
-        CustomerTier niveauFidelite,
+        //CustomerTier niveauFidelite,
         @Valid
         UserCreateRequestDto user) {
 }

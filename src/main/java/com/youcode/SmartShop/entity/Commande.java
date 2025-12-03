@@ -29,7 +29,7 @@ public class Commande {
     private BigDecimal sousTotal;
     private int remise = 0;
     private int TVA = 20;
-    private BigDecimal total;
+    private BigDecimal total = BigDecimal.ZERO;
     private String codePromo;
     private OrderStatus statut = OrderStatus.PENDING;
     private BigDecimal montant_restant;
