@@ -1,5 +1,7 @@
 package com.youcode.SmartShop.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.youcode.SmartShop.enums.PaymentStatus;
 import com.youcode.SmartShop.enums.PaymentType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,5 +29,7 @@ public abstract class Paiement {
     protected LocalDate  date_encaissement ;
     @ManyToOne
     @JoinColumn(name = "commande_id" ,nullable = false)
+    @JsonIgnore
     protected Commande commande;
+    private PaymentStatus statut  = PaymentStatus.EN_ATTENTE;
 }
