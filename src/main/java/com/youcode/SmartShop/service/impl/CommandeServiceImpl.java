@@ -5,19 +5,16 @@ import com.youcode.SmartShop.dtos.request.CommandeCreateWithMultiItemRequestDto;
 import com.youcode.SmartShop.dtos.request.OrderItemCreateRequestDto;
 import com.youcode.SmartShop.dtos.response.ClinetStatisticResponseDto;
 import com.youcode.SmartShop.dtos.response.CommandeResponseDto;
-import com.youcode.SmartShop.entity.Commande;
-import com.youcode.SmartShop.entity.OrderItem;
-import com.youcode.SmartShop.entity.Product;
+import com.youcode.SmartShop.entity.*;
 import com.youcode.SmartShop.enums.OrderStatus;
+import com.youcode.SmartShop.enums.PaymentStatus;
 import com.youcode.SmartShop.exception.CommandeCreationFailedException;
 import com.youcode.SmartShop.exception.IncorrectInputException;
 import com.youcode.SmartShop.exception.NotFoundException;
 import com.youcode.SmartShop.exception.ProductStockUnavailableException;
 import com.youcode.SmartShop.mapper.CommandeMapper;
 import com.youcode.SmartShop.mapper.OrderItemMapper;
-import com.youcode.SmartShop.repository.ClientRepository;
-import com.youcode.SmartShop.repository.CommandeRepository;
-import com.youcode.SmartShop.repository.ProductRepository;
+import com.youcode.SmartShop.repository.*;
 import com.youcode.SmartShop.service.interfaces.ICommandeService;
 import com.youcode.SmartShop.service.interfaces.IOrderItemService;
 import com.youcode.SmartShop.service.interfaces.IProductService;
@@ -41,6 +38,9 @@ public class CommandeServiceImpl implements ICommandeService {
     private final IOrderItemService orderItemService;
     private final ProductRepository productRepository;
     private final OrderItemMapper orderItemMapper;
+    private final ChequeRepository chequeRepository;
+    private final VirementRepository  virementRepository;
+    private  final  EspecesRepository especesRepository;
 
     @Override
     public CommandeResponseDto save(CommandeCreateRequestDto request) {
@@ -65,8 +65,8 @@ public class CommandeServiceImpl implements ICommandeService {
     @Override
     public Page<CommandeResponseDto> getAll(Pageable pageable) {
         Page<Commande> commandes = commandeRepository.findAll(pageable);
-//        if (commandes.getTotalElements() < 1)
-//            throw new NotFoundException("aucun commande trouve");
+        if (commandes.isEmpty())
+           throw new NotFoundException("aucun commande trouve");
         return commandes.map(commandeMapper::toDTO);
     }
 
@@ -140,7 +140,40 @@ public class CommandeServiceImpl implements ICommandeService {
                 productRepository.save(product);
                 return null;
             });
+            commande.getPaiement().stream().map(paiement -> {
+                paiement.setStatut(PaymentStatus.ENCAISSE);
+                if (paiement instanceof Cheque){
+                    Cheque cheque = (Cheque) paiement;
+                    chequeRepository.save(cheque);
+                }else if(paiement  instanceof Virement)
+                {
+                    Virement   virement  = (Virement) paiement;
+                    virementRepository.save(virement);
+                }else{
+                    Especes  especes  = (Especes)  paiement;
+                    especesRepository.save(especes);
+                }
+                return   null;
+            });
 
+        }
+        else if(status.equals(OrderStatus.CANCELED))
+        {
+            commande.getPaiement().stream().map(paiement -> {
+                paiement.setStatut(PaymentStatus.REJETE);
+                if (paiement instanceof Cheque){
+                    Cheque cheque = (Cheque) paiement;
+                    chequeRepository.save(cheque);
+                }else if(paiement  instanceof Virement)
+                {
+                    Virement   virement  = (Virement) paiement;
+                    virementRepository.save(virement);
+                }else{
+                    Especes  especes  = (Especes)  paiement;
+                    especesRepository.save(especes);
+                }
+                return   null;
+            });
         }
         return commandeMapper.toDTO(commandeRepository.save(commande));
     }
