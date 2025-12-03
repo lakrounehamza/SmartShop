@@ -14,6 +14,7 @@ import com.youcode.SmartShop.repository.UserRepository;
 import com.youcode.SmartShop.service.interfaces.IClientService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,8 @@ public class ClientServiceImpl implements IClientService {
             throw new DuplicateClientException("Un client avec cet email existe deja");
         Client client = clientMapper.toEntity(request);
         User user = userMapper.toEntity(request.user());
+        String hashedPassword = BCrypt.hashpw(request.user().password(), BCrypt.gensalt());
+        user.setPassword(hashedPassword);
         User userSaved = userRepository.save(user);
         client.setUser(userSaved);
         Client clientSaved = clientRepository.save(client);
