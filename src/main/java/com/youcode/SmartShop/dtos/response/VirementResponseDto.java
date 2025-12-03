@@ -1,5 +1,6 @@
 package com.youcode.SmartShop.dtos.response;
 
+import com.youcode.SmartShop.enums.PaymentStatus;
 import com.youcode.SmartShop.enums.PaymentType;
 import lombok.Builder;
 
@@ -15,5 +16,5 @@ public record VirementResponseDto(
         LocalDate date_paiement,
         LocalDate date_encaissement,
         String reference,
-        String banque) {
+        String banque, PaymentStatus statut) {
 }

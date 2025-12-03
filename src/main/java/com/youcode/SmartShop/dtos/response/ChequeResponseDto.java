@@ -1,5 +1,6 @@
 package com.youcode.SmartShop.dtos.response;
 
+import com.youcode.SmartShop.enums.PaymentStatus;
 import com.youcode.SmartShop.enums.PaymentType;
 import lombok.Builder;
 
@@ -18,5 +19,5 @@ public record ChequeResponseDto(
         String nenuro,
         String banque,
         LocalDate echance,
-        long commande_id) {
+         PaymentStatus statut ) {
 }
