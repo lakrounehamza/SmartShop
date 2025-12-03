@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
             Exception e,
             HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
-                "Une erreur interne s'est produite",
+                "Une erreur interne s'est produite"+e.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 LocalDateTime.now(),
                 request.getRequestURI()
@@ -95,4 +95,35 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleIncorrectPasswordException(
+            IncorrectPasswordException e,
+            HttpServletRequest request) {
+
+        ErrorResponse error = new ErrorResponse(
+                e.getMessage(),
+                HttpStatus.UNAUTHORIZED.value(),
+                LocalDateTime.now(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(IncorrectInputException.class)
+    public ResponseEntity<ErrorResponse> handleIncorrectInputException(
+            IncorrectInputException e,
+            HttpServletRequest request) {
+
+        ErrorResponse error = new ErrorResponse(
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+
 }
