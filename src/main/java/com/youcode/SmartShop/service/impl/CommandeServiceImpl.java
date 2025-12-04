@@ -42,6 +42,7 @@ public class CommandeServiceImpl implements ICommandeService {
     private final ChequeRepository chequeRepository;
     private final VirementRepository  virementRepository;
     private  final  EspecesRepository especesRepository;
+    private final OrderItemRepository orderItemRepository;
 
     @Override
     public CommandeResponseDto save(CommandeCreateRequestDto request) {
@@ -82,6 +83,8 @@ public class CommandeServiceImpl implements ICommandeService {
             List<OrderItemCreateRequestDto> orderItemRequest = request.orderItemCreateRequestDtos();
             CommandeCreateRequestDto commandeRequest =  request.commandeCreateRequestDto();
             Commande   commande  = commandeMapper.toEntity(commandeRequest);
+            if(commandeRepository.getCountCommandePending(commande.getClient().getId())>0)
+                throw new IncorrectInputException("il existe des commandes non confirmees");
             BigDecimal prixTotal = orderItemRequest.stream()
                     .map(item -> {
                         BigDecimal prixProduit = productRepository.findById(item.produit_id())
@@ -93,8 +96,18 @@ public class CommandeServiceImpl implements ICommandeService {
 
 
             commande.setSousTotal(prixTotal);
-            commande.setMontant_restant(prixTotal);
-            Commande commandSaved = commandeRepository.save(commande);
+            Client client = clientRepository.findById(commande.getClient().getId()).get();
+
+            if(client.getNiveauFidelite().equals(CustomerTier.SILVER) && prixTotal.compareTo(BigDecimal.valueOf(500))==1)
+                commande.setRemise(5);
+            else if(client.getNiveauFidelite().equals(CustomerTier.GOLD) && prixTotal.compareTo(BigDecimal.valueOf(800))==1)
+                commande.setRemise(10);
+            else if(client.getNiveauFidelite().equals(CustomerTier.PLATINUM) && prixTotal.compareTo(BigDecimal.valueOf(1200))==1)
+                commande.setRemise(15);
+
+        commande.setMontant_restant(prixTotal.subtract(prixTotal.multiply(BigDecimal.valueOf(commande.getRemise())).divide(BigDecimal.valueOf(100))));
+
+        Commande commandSaved = commandeRepository.save(commande);
             List<OrderItem>   listItem   = orderItemRequest.stream().map(item ->{
                 OrderItem entity = orderItemMapper.toEntity(item);
                 Product  product = productRepository.findById(item.produit_id()).orElse(new Product(item.produit_id(),"not exist",BigDecimal.ZERO,0));
@@ -121,6 +134,7 @@ public class CommandeServiceImpl implements ICommandeService {
                 commandeRepository.save(commandSaved);
                 throw new CommandeCreationFailedException(messageError);
             }
+
 
             commandSaved.setAticles(listItem);
             return commandeMapper.toDTO(commandSaved);
@@ -175,6 +189,28 @@ public class CommandeServiceImpl implements ICommandeService {
                 client.setNiveauFidelite(CustomerTier.PLATINUM);
                 clientRepository.save(client);
             }
+
+
+            commande.getAticles().forEach(orderItem -> {
+
+                Product produit = productRepository.findById(
+                        orderItem.getProduct().getId()
+                ).orElseThrow(() -> new IncorrectInputException("Produit introuvable"));
+ List<OrderItem> itemsDuProduit =
+                        orderItemRepository.findByProduct_Id(produit.getId());
+  itemsDuProduit.forEach(item -> {
+
+                    if (item.getQuantite() > produit.getStock()) {
+
+                        Commande commandeAAnnuler = commandeRepository.findById(
+                                item.getCommande().getId()
+                        ).orElseThrow(() -> new IncorrectInputException("Commande introuvable"));
+
+                        commandeAAnnuler.setStatut(OrderStatus.CANCELED);
+                        commandeRepository.save(commandeAAnnuler);
+                    }
+                });
+            });
 
         }
         else if(status.equals(OrderStatus.CANCELED))

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -24,5 +25,9 @@ public interface CommandeRepository extends JpaRepository<Commande,Long> {
     int findCountByClinet_id(long  id);
     @Query("select count(c.id) from  Commande c where c.statut=1 and c.client.id =:id")
     int findCountConfirmeByClinet_id(long  id);
+    @Query("select count(c.id)  From  Commande c where c.statut =0 and c.client.id =:id")
+    int getCountCommandePending(Long id);
+    @Query("select c  from Commande c join OrderItem o  where o.product.id=:id")
+    List<Commande> findByProduit_Id(Long  id);
 
 }

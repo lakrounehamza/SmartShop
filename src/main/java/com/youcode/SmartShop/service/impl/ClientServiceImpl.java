@@ -5,6 +5,7 @@ import com.youcode.SmartShop.dtos.request.NiveauFideliteUpdateDto;
 import com.youcode.SmartShop.dtos.response.ClientResponseDto;
 import com.youcode.SmartShop.entity.Client;
 import com.youcode.SmartShop.entity.User;
+import com.youcode.SmartShop.enums.CustomerTier;
 import com.youcode.SmartShop.exception.DuplicateClientException;
 import com.youcode.SmartShop.exception.NotFoundException;
 import com.youcode.SmartShop.mapper.ClientMapper;
@@ -40,6 +41,7 @@ public class ClientServiceImpl implements IClientService {
         user.setPassword(hashedPassword);
         User userSaved = userRepository.save(user);
         client.setUser(userSaved);
+        client.setNiveauFidelite(CustomerTier.BASIC);
         Client clientSaved = clientRepository.save(client);
         return clientMapper.toDTO(clientSaved);
     }
