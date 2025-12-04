@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Random;
+import java.util.UUID;
+
 @Entity
 @Table(name = "code_promo")
 @Data
@@ -26,7 +30,10 @@ public class CodePromo {
     @PrePersist
     public void generateCode() {
         if (this.code == null) {
-            this.code = "PROMO-" + String.format("%04d", (id != null ? id : 0));
+            Random rand  =  new Random();
+            int index = rand.nextInt(30);
+            String shortUuid = UUID.randomUUID().toString().replace("-", "").substring(index, index+4).toUpperCase();
+            this.code = "PROMO-" + shortUuid;
         }
     }
 }
