@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +44,7 @@ public class CommandeServiceImpl implements ICommandeService {
     private final VirementRepository  virementRepository;
     private  final  EspecesRepository especesRepository;
     private final OrderItemRepository orderItemRepository;
+    private final CodePromoRepository codePromoRepository;
 
     @Override
     public CommandeResponseDto save(CommandeCreateRequestDto request) {
@@ -104,7 +106,16 @@ public class CommandeServiceImpl implements ICommandeService {
                 commande.setRemise(10);
             else if(client.getNiveauFidelite().equals(CustomerTier.PLATINUM) && prixTotal.compareTo(BigDecimal.valueOf(1200))==1)
                 commande.setRemise(15);
-
+            Optional<CodePromo> codePromo  = codePromoRepository.findByCode(commande.getCodePromo());
+            if(codePromo.isPresent()){
+                CodePromo codePromo1 = codePromo.get();
+                if(codePromo1.getLimit()>codePromo1.getNumberOfTimes())
+                {
+                    commande.setRemise(commande.getRemise()+5);
+                    codePromo1.setNumberOfTimes(codePromo1.getNumberOfTimes()-1);
+                    codePromoRepository.save(codePromo1);
+                }
+            }
         commande.setMontant_restant(prixTotal.subtract(prixTotal.multiply(BigDecimal.valueOf(commande.getRemise())).divide(BigDecimal.valueOf(100))));
         BigDecimal tva  = commande.getMontant_restant().multiply(BigDecimal.valueOf(20)).divide(BigDecimal.valueOf(100));
         commande.setMontant_restant(commande.getMontant_restant().add(tva));
