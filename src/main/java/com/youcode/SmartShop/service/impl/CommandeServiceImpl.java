@@ -18,15 +18,12 @@ import com.youcode.SmartShop.mapper.OrderItemMapper;
 import com.youcode.SmartShop.repository.*;
 import com.youcode.SmartShop.service.interfaces.ICommandeService;
 import com.youcode.SmartShop.service.interfaces.IOrderItemService;
-import com.youcode.SmartShop.service.interfaces.IProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,6 +31,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class CommandeServiceImpl implements ICommandeService {
+
     private final CommandeMapper commandeMapper;
     private final CommandeRepository commandeRepository;
     private final ClientRepository clientRepository;
@@ -41,8 +39,8 @@ public class CommandeServiceImpl implements ICommandeService {
     private final ProductRepository productRepository;
     private final OrderItemMapper orderItemMapper;
     private final ChequeRepository chequeRepository;
-    private final VirementRepository  virementRepository;
-    private  final  EspecesRepository especesRepository;
+    private final VirementRepository virementRepository;
+    private final EspecesRepository especesRepository;
     private final OrderItemRepository orderItemRepository;
     private final CodePromoRepository codePromoRepository;
 
@@ -70,181 +68,200 @@ public class CommandeServiceImpl implements ICommandeService {
     public Page<CommandeResponseDto> getAll(Pageable pageable) {
         Page<Commande> commandes = commandeRepository.findAll(pageable);
         if (commandes.isEmpty())
-           throw new NotFoundException("aucun commande trouve");
+            throw new NotFoundException("aucun commande trouve");
         return commandes.map(commandeMapper::toDTO);
     }
 
     @Override
     public ClinetStatisticResponseDto getClientStatistic(Long id) {
-        if(!clientRepository.existsById(id))
-            throw new NotFoundException("client introuvable avec l'id "+id);
-        return new ClinetStatisticResponseDto( commandeRepository.findCountByClinet_id(id),commandeRepository.findCumuleByClient_Id(id).get(), commandeRepository.findFirstDateByClient_id(id).get(), commandeRepository.findLastDateByClient_id(id).get());
+        if (!clientRepository.existsById(id))
+            throw new NotFoundException("client introuvable avec l'id " + id);
+        return new ClinetStatisticResponseDto(commandeRepository.findCountByClinet_id(id), commandeRepository.findCumuleByClient_Id(id).get(), commandeRepository.findFirstDateByClient_id(id).get(), commandeRepository.findLastDateByClient_id(id).get());
     }
+
     @Override
-        public CommandeResponseDto saveWithMultiOrderItem(CommandeCreateWithMultiItemRequestDto request){
-            List<OrderItemCreateRequestDto> orderItemRequest = request.orderItemCreateRequestDtos();
-            CommandeCreateRequestDto commandeRequest =  request.commandeCreateRequestDto();
-            Commande   commande  = commandeMapper.toEntity(commandeRequest);
-            if(commandeRepository.getCountCommandePending(commande.getClient().getId())>0)
-                throw new IncorrectInputException("il existe des commandes non confirmees");
-            BigDecimal prixTotal = orderItemRequest.stream()
-                    .map(item -> {
-                        BigDecimal prixProduit = productRepository.findById(item.produit_id())
-                                .map(prod -> prod.getPrix())
-                                .orElse(BigDecimal.ZERO);
-                        return prixProduit.multiply(BigDecimal.valueOf(item.quantite()));
-                    })
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+    public CommandeResponseDto saveWithMultiOrderItem(CommandeCreateWithMultiItemRequestDto request) {
 
+        List<OrderItemCreateRequestDto> orderItemRequest = request.orderItemCreateRequestDtos();
+        CommandeCreateRequestDto commandeRequest = request.commandeCreateRequestDto();
+        Commande commande = commandeMapper.toEntity(commandeRequest);
 
-            commande.setSousTotal(prixTotal);
-            Client client = clientRepository.findById(commande.getClient().getId()).get();
+        if (commandeRepository.getCountCommandePending(commande.getClient().getId()) > 0)
+            throw new IncorrectInputException("il existe des commandes non confirmees");
 
-            if(client.getNiveauFidelite().equals(CustomerTier.SILVER) && prixTotal.compareTo(BigDecimal.valueOf(500))==1)
-                commande.setRemise(5);
-            else if(client.getNiveauFidelite().equals(CustomerTier.GOLD) && prixTotal.compareTo(BigDecimal.valueOf(800))==1)
-                commande.setRemise(10);
-            else if(client.getNiveauFidelite().equals(CustomerTier.PLATINUM) && prixTotal.compareTo(BigDecimal.valueOf(1200))==1)
-                commande.setRemise(15);
-            Optional<CodePromo> codePromo  = codePromoRepository.findByCode(commande.getCodePromo());
-            if(codePromo.isPresent()){
-                CodePromo codePromo1 = codePromo.get();
-                if(codePromo1.getLimit()>codePromo1.getNumberOfTimes())
-                {
-                    commande.setRemise(commande.getRemise()+5);
-                    codePromo1.setNumberOfTimes(codePromo1.getNumberOfTimes()-1);
-                    codePromoRepository.save(codePromo1);
-                }
-            }
+        BigDecimal prixTotal = calculPrixCommande(orderItemRequest);
+
+        commande.setSousTotal(prixTotal);
+        calculRemise(commande);
+
         commande.setMontant_restant(prixTotal.subtract(prixTotal.multiply(BigDecimal.valueOf(commande.getRemise())).divide(BigDecimal.valueOf(100))));
-        BigDecimal tva  = commande.getMontant_restant().multiply(BigDecimal.valueOf(20)).divide(BigDecimal.valueOf(100));
+        BigDecimal tva = commande.getMontant_restant().multiply(BigDecimal.valueOf(20)).divide(BigDecimal.valueOf(100));
         commande.setMontant_restant(commande.getMontant_restant().add(tva));
 
-                Commande commandSaved = commandeRepository.save(commande);
-            List<OrderItem>   listItem   = orderItemRequest.stream().map(item ->{
-                OrderItem entity = orderItemMapper.toEntity(item);
-                Product  product = productRepository.findById(item.produit_id()).orElse(new Product(item.produit_id(),"not exist",BigDecimal.ZERO,0));
-                BigDecimal totalline = BigDecimal.valueOf(item.quantite()).multiply(product.getPrix());
-                entity.setTotalLigne(totalline);
-                entity.setPrix(product.getPrix());
-                entity.setProduct(product);
-                entity.setCommande(commandSaved);
+        Commande commandSaved = commandeRepository.save(commande);
 
-                return entity;
-            }).collect(Collectors.toList());
-             boolean confli = false;
-             String  messageError = "";
-            for  (OrderItem item : listItem) {
-                try {
-                    orderItemService.save(item);
-                } catch (ProductStockUnavailableException | NotFoundException e) {
-                    confli = true;
-                   messageError += " "+e.getMessage();
-                }
+        List<OrderItem> listItem = orderItemRequest.stream().map(item -> {
+            OrderItem entity = orderItemMapper.toEntity(item);
+            Product product = productRepository.findById(item.produit_id()).orElse(new Product(item.produit_id(), "not exist", BigDecimal.ZERO, 0));
+            BigDecimal totalline = BigDecimal.valueOf(item.quantite()).multiply(product.getPrix());
+            entity.setTotalLigne(totalline);
+            entity.setPrix(product.getPrix());
+            entity.setProduct(product);
+            entity.setCommande(commandSaved);
+
+            return entity;
+        }).collect(Collectors.toList());
+
+        boolean confli = false;
+        String messageError = "";
+        for (OrderItem item : listItem) {
+            try {
+                orderItemService.save(item);
+            } catch (ProductStockUnavailableException | NotFoundException e) {
+                confli = true;
+                messageError += " " + e.getMessage();
             }
-            if(confli){
-                commandSaved.setStatut(OrderStatus.REJECTED);
-                commandeRepository.save(commandSaved);
-                throw new CommandeCreationFailedException(messageError);
-            }
-
-
-            commandSaved.setAticles(listItem);
-            return commandeMapper.toDTO(commandSaved);
-
         }
+        if (confli) {
+            commandSaved.setStatut(OrderStatus.REJECTED);
+            commandeRepository.save(commandSaved);
+            throw new CommandeCreationFailedException(messageError);
+        }
+
+
+        commandSaved.setAticles(listItem);
+        return commandeMapper.toDTO(commandSaved);
+
+    }
+
     @Override
-    public CommandeResponseDto updateStatus(Long id,OrderStatus status) {
-        if(!commandeRepository.existsById(id))
-            throw new NotFoundException("commande introuvable avec l'id "+id);
-        Commande commande = commandeRepository.findById(id).get();
+    public CommandeResponseDto updateStatus(Long id, OrderStatus status) {
+
+        Commande commande = commandeRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Commande introuvable avec l'id " + id));
+
         commande.setStatut(status);
-        if(status.equals(OrderStatus.CONFIRMED) ){
-            if( commande.getMontant_restant().compareTo(BigDecimal.ZERO)!=0)
-                throw new IncorrectInputException("tu  veux confirme  un commande ne  pas   pay ");
-            commande.getAticles().stream().forEach(orderItem -> {
-                Product product =orderItem.getProduct();
-                System.out.println(product.getStock());
-                product.setStock(product.getStock()-orderItem.getQuantite());
-                productRepository.save(product);
-            });
 
-            commande.getPaiement().stream().forEach(paiement -> {
-                paiement.setStatut(PaymentStatus.ENCAISSE);
-                if (paiement instanceof Cheque){
-                    Cheque cheque = (Cheque) paiement;
-                    chequeRepository.save(cheque);
-                }else if(paiement  instanceof Virement)
-                {
-                    Virement   virement  = (Virement) paiement;
-                    virementRepository.save(virement);
-                }else{
-                    Especes  especes  = (Especes)  paiement;
-                    especesRepository.save(especes);
-                }
-            });
-
-            commande.setTotal(commande.getTotal().add(commande.getSousTotal()));
-            int countCommande = commandeRepository.findCountConfirmeByClinet_id(commande.getClient().getId());
-            if(countCommande ==2 || commande.getTotal().compareTo(BigDecimal.valueOf(1000)) ==1)
-            {
-                Client client   = commande.getClient();
-                client.setNiveauFidelite(CustomerTier.SILVER);
-                clientRepository.save(client);
-            } else if(countCommande ==9 || commande.getTotal().compareTo(BigDecimal.valueOf(5000)) ==1)
-            {
-                Client client   = commande.getClient();
-                client.setNiveauFidelite(CustomerTier.GOLD);
-                clientRepository.save(client);
-            }else if(countCommande ==19 || commande.getTotal().compareTo(BigDecimal.valueOf(15000)) ==1)
-            {
-                Client client   = commande.getClient();
-                client.setNiveauFidelite(CustomerTier.PLATINUM);
-                clientRepository.save(client);
-            }
-
-
-            commande.getAticles().forEach(orderItem -> {
-
-                Product produit = productRepository.findById(
-                        orderItem.getProduct().getId()
-                ).orElseThrow(() -> new IncorrectInputException("Produit introuvable"));
- List<OrderItem> itemsDuProduit =
-                        orderItemRepository.findByProduct_Id(produit.getId());
-  itemsDuProduit.forEach(item -> {
-
-                    if (item.getQuantite() > produit.getStock()) {
-
-                        Commande commandeAAnnuler = commandeRepository.findById(
-                                item.getCommande().getId()
-                        ).orElseThrow(() -> new IncorrectInputException("Commande introuvable"));
-
-                        commandeAAnnuler.setStatut(OrderStatus.CANCELED);
-                        commandeRepository.save(commandeAAnnuler);
-                    }
-                });
-            });
-
+        if (status == OrderStatus.CONFIRMED) {
+            handleConfirmation(commande);
+        } else if (status == OrderStatus.CANCELED) {
+            updatePaymentsStatus(commande, PaymentStatus.REJETE);
         }
-        else if(status.equals(OrderStatus.CANCELED))
-        {
-            commande.getPaiement().stream().map(paiement -> {
-                paiement.setStatut(PaymentStatus.REJETE);
-                if (paiement instanceof Cheque){
-                    Cheque cheque = (Cheque) paiement;
-                    chequeRepository.save(cheque);
-                }else if(paiement  instanceof Virement)
-                {
-                    Virement   virement  = (Virement) paiement;
-                    virementRepository.save(virement);
-                }else{
-                    Especes  especes  = (Especes)  paiement;
-                    especesRepository.save(especes);
-                }
-                return   null;
-            });
-        }
+
         return commandeMapper.toDTO(commandeRepository.save(commande));
+    }
+
+    private BigDecimal calculPrixCommande(List<OrderItemCreateRequestDto> orderItemRequest) {
+
+        return orderItemRequest.stream()
+                .map(item -> productRepository.findById(item.produit_id())
+                        .map(Product::getPrix)
+                        .orElse(BigDecimal.ZERO)
+                        .multiply(BigDecimal.valueOf(item.quantite()))
+                )
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private void calculRemise(Commande commande) {
+
+        Client client = clientRepository.findById(commande.getClient().getId())
+                .orElseThrow(() -> new NotFoundException("Client introuvable"));
+
+        BigDecimal total = commande.getSousTotal();
+        int remise = 0;
+
+        switch (client.getNiveauFidelite()) {
+            case SILVER -> remise = total.compareTo(BigDecimal.valueOf(500)) > 0 ? 5 : 0;
+            case GOLD -> remise = total.compareTo(BigDecimal.valueOf(800)) > 0 ? 10 : 0;
+            case PLATINUM -> remise = total.compareTo(BigDecimal.valueOf(1200)) > 0 ? 15 : 0;
+        }
+
+         Optional<CodePromo> codePromo = codePromoRepository.findByCode(commande.getCodePromo());
+                if(codePromo.isPresent()){
+                   CodePromo  cp = codePromo.get();
+                        if (cp.getLimit() > cp.getNumberOfTimes()) {
+                            remise += 5;
+                            cp.setNumberOfTimes(cp.getNumberOfTimes() + 1);
+                            codePromoRepository.save(cp);
+                        }
+                }
+
+
+        commande.setRemise(remise);
+    }
+
+    private void handleConfirmation(Commande commande) {
+
+        if (commande.getMontant_restant().compareTo(BigDecimal.ZERO) != 0) {
+            throw new IncorrectInputException("Impossible de confirmer : commande non totalement payée");
+        }
+        updateStock(commande);
+        updatePaymentsStatus(commande, PaymentStatus.ENCAISSE);
+        commande.setTotal(commande.getTotal().add(commande.getSousTotal()));
+        updateCustomerFidelity(commande);
+        checkForStockConflicts(commande);
+    }
+    private void updatePaymentsStatus(Commande commande, PaymentStatus statut) {
+        commande.getPaiement().forEach(p -> {
+            p.setStatut(statut);
+
+            if (p instanceof Cheque) {
+                chequeRepository.save((Cheque) p);
+            } else if (p instanceof Virement) {
+                virementRepository.save((Virement) p);
+            } else {
+                especesRepository.save((Especes) p);
+            }
+        });
+    }
+    private void updateStock(Commande commande) {
+        for (OrderItem item : commande.getAticles()) {
+            Product product = item.getProduct();
+            int newStock = product.getStock() - item.getQuantite();
+
+            if (newStock < 0)
+                throw new IncorrectInputException("Stock insuffisant pour le produit " + product.getNom());
+
+            product.setStock(newStock);
+            productRepository.save(product);
+        }
+    }
+
+    private void updateCustomerFidelity(Commande commande) {
+        Client client = commande.getClient();
+        int confirmedCount = commandeRepository.findCountConfirmeByClinet_id(client.getId());
+        BigDecimal total = commande.getTotal();
+        if (confirmedCount >= 19 || total.compareTo(BigDecimal.valueOf(15000)) > 0) {
+            client.setNiveauFidelite(CustomerTier.PLATINUM);
+        } else if (confirmedCount >= 9 || total.compareTo(BigDecimal.valueOf(5000)) > 0) {
+            client.setNiveauFidelite(CustomerTier.GOLD);
+        } else if (confirmedCount >= 2 || total.compareTo(BigDecimal.valueOf(1000)) > 0) {
+            client.setNiveauFidelite(CustomerTier.SILVER);
+        }
+
+        clientRepository.save(client);
+    }
+    private void checkForStockConflicts(Commande commande) {
+
+        for (OrderItem item : commande.getAticles()) {
+
+            Product produit = productRepository.findById(item.getProduct().getId())
+                    .orElseThrow(() -> new IncorrectInputException("Produit introuvable"));
+
+            List<OrderItem> itemsProduit = orderItemRepository.findByProduct_Id(produit.getId());
+
+            itemsProduit.forEach(existingItem -> {
+                if (existingItem.getQuantite() > produit.getStock()) {
+
+                    Commande commandeAAnnuler = commandeRepository.findById(
+                                    existingItem.getCommande().getId())
+                            .orElseThrow(() -> new IncorrectInputException("Commande introuvable"));
+
+                    commandeAAnnuler.setStatut(OrderStatus.CANCELED);
+                    commandeRepository.save(commandeAAnnuler);
+                }
+            });
+        }
     }
 
 }
