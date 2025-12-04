@@ -106,8 +106,10 @@ public class CommandeServiceImpl implements ICommandeService {
                 commande.setRemise(15);
 
         commande.setMontant_restant(prixTotal.subtract(prixTotal.multiply(BigDecimal.valueOf(commande.getRemise())).divide(BigDecimal.valueOf(100))));
+        BigDecimal tva  = commande.getMontant_restant().multiply(BigDecimal.valueOf(20)).divide(BigDecimal.valueOf(100));
+        commande.setMontant_restant(commande.getMontant_restant().add(tva));
 
-        Commande commandSaved = commandeRepository.save(commande);
+                Commande commandSaved = commandeRepository.save(commande);
             List<OrderItem>   listItem   = orderItemRequest.stream().map(item ->{
                 OrderItem entity = orderItemMapper.toEntity(item);
                 Product  product = productRepository.findById(item.produit_id()).orElse(new Product(item.produit_id(),"not exist",BigDecimal.ZERO,0));
