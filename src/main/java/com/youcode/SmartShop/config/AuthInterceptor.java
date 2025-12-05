@@ -1,5 +1,6 @@
 package com.youcode.SmartShop.config;
 
+import com.youcode.SmartShop.exception.AuthenticationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -17,9 +18,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("role") == null) {
-            response.setStatus(401);
-            response.getWriter().write("Non authentifie");
-            return false;
+            throw new AuthenticationException("non authentifir.");
         }
 
         return true;
