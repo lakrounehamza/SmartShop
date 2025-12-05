@@ -7,6 +7,7 @@ import com.youcode.SmartShop.entity.Client;
 import com.youcode.SmartShop.entity.User;
 import com.youcode.SmartShop.enums.CustomerTier;
 import com.youcode.SmartShop.enums.UserRole;
+import com.youcode.SmartShop.exception.DuplicateClientException;
 import com.youcode.SmartShop.mapper.ClientMapper;
 import com.youcode.SmartShop.mapper.UserMapper;
 import com.youcode.SmartShop.repository.ClientRepository;
@@ -76,7 +77,7 @@ public class ClientServiceImplTest {
     }
 
     @Test
-    public void savesTest(){
+    public void savesTest() {
 
         when(clientMapper.toEntity(requestDto)).thenReturn(client);
         when(userMapper.toEntity(requestDto.user())).thenReturn(user);
@@ -90,5 +91,26 @@ public class ClientServiceImplTest {
         assertNotNull(clientSaved);
         verify(userRepository).save(any(User.class));
         verify(clientRepository).save(any(Client.class));
+    }
+
+    @Test
+    void saveThrowDuplicateUsername() {
+        when(userRepository.existsByUsername("hamza")).thenReturn(true);
+
+        assertThrows(DuplicateClientException.class,
+                () -> service.save(requestDto));
+
+        verify(clientRepository, never()).save(any());
+
+    }
+    @Test
+    void saveThrowDuplicateEmail() {
+        when(userRepository.existsByUsername("hamza")).thenReturn(false);
+        when(clientRepository.existsByEmail("email@gmail.com")).thenReturn(true);
+
+        assertThrows(DuplicateClientException.class,
+                () -> service.save(requestDto));
+
+        verify(clientRepository, never()).save(any());
     }
 }
