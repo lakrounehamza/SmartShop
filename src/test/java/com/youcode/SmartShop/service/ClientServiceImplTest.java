@@ -1,6 +1,7 @@
 package com.youcode.SmartShop.service;
 
 import com.youcode.SmartShop.dtos.request.ClientCreateRequestDto;
+import com.youcode.SmartShop.dtos.request.NiveauFideliteUpdateDto;
 import com.youcode.SmartShop.dtos.request.UserCreateRequestDto;
 import com.youcode.SmartShop.dtos.response.ClientResponseDto;
 import com.youcode.SmartShop.entity.Client;
@@ -135,5 +136,29 @@ public class ClientServiceImplTest {
         assertThrows(NotFoundException.class,
                 () -> service.getClientById(1L));
 
+    }
+
+    @Test
+    public void updateNiveauFideliteTest(){
+        NiveauFideliteUpdateDto niveaiRequest   =  new NiveauFideliteUpdateDto(CustomerTier.BASIC);
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+        client.setNiveauFidelite(CustomerTier.BASIC);
+
+        when(clientMapper.toDTO(client)).thenReturn(responseDto);
+
+        ClientResponseDto clientResponseDto = service.updateNiveauFidelite(1L,niveaiRequest);
+
+        assertNotNull(clientResponseDto);
+        assertEquals(clientResponseDto.id(),1l);
+        verify(clientRepository).save(any(Client.class));
+
+    }
+    @Test
+    public  void updateNiveauFideliteThrowNotFoundTest(){
+        NiveauFideliteUpdateDto niveaiRequest   =  new NiveauFideliteUpdateDto(CustomerTier.BASIC);
+
+        when(clientRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class,()->service.updateNiveauFidelite(1L,niveaiRequest));
+        verify(clientRepository, never()).save(any());
     }
 }
