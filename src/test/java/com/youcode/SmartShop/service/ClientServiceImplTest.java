@@ -8,6 +8,7 @@ import com.youcode.SmartShop.entity.User;
 import com.youcode.SmartShop.enums.CustomerTier;
 import com.youcode.SmartShop.enums.UserRole;
 import com.youcode.SmartShop.exception.DuplicateClientException;
+import com.youcode.SmartShop.exception.NotFoundException;
 import com.youcode.SmartShop.mapper.ClientMapper;
 import com.youcode.SmartShop.mapper.UserMapper;
 import com.youcode.SmartShop.repository.ClientRepository;
@@ -19,6 +20,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -112,5 +116,24 @@ public class ClientServiceImplTest {
                 () -> service.save(requestDto));
 
         verify(clientRepository, never()).save(any());
+    }
+
+    @Test
+    public void getClientByIdTest(){
+        Optional<Client> clientFind = Optional.of(client);
+        when(clientRepository.findById(1L)).thenReturn(clientFind);
+        when(clientMapper.toDTO(client)).thenReturn(responseDto);
+
+        ClientResponseDto clientResponseDto = service.getClientById(1L);
+
+        assertNotNull(clientResponseDto);
+        assertEquals(responseDto.id(),clientResponseDto.id());
+    }
+    @Test
+    public void getClientByIdThrowNotFound(){
+        when(clientRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class,
+                () -> service.getClientById(1L));
+
     }
 }
