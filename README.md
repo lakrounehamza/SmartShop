@@ -187,11 +187,11 @@ L'application sera accessible sur : `http://localhost:8080`
 - `DELETE /api/products/{id}` : Supprimer un produit
 
 #### Commandes
-- `GET /api/orders` : Liste des commandes
-- `GET /api/orders/{id}` : Détails d'une commande
-- `POST /api/orders` : Créer une commande
-- `PUT /api/orders/{id}/confirm` : Valider une commande (ADMIN)
-- `PUT /api/orders/{id}/cancel` : Annuler une commande (ADMIN)
+- `GET /api/commandes` : Liste des commandes
+- `GET /api/commandes/{id}` : Détails d'une commande
+- `POST /api/commandes` : Créer une commande
+- `PUT /api/commandes/{id}/confirm` : Valider une commande (ADMIN)
+- `PUT /api/commandes/{id}/cancel` : Annuler une commande (ADMIN)
 
 #### Paiements
 - `POST /api/payments` : Enregistrer un paiement
@@ -210,7 +210,7 @@ Une collection Postman complète est disponible dans le dossier `/postman` avec 
 ## 📐 Diagramme de Classes UML
 
 Le diagramme de classes UML
-![Diagramme de classes](./daigrameClass.png)
+![Diagramme de classes](./daigrameClassV3.png)
 
 ## ⚠️ Règles Métier Critiques
 
