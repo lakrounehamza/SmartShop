@@ -21,7 +21,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -160,5 +165,18 @@ public class ClientServiceImplTest {
         when(clientRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(NotFoundException.class,()->service.updateNiveauFidelite(1L,niveaiRequest));
         verify(clientRepository, never()).save(any());
+    }
+    @Test
+    public void  getAllTest(){
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Client> clientPage = new PageImpl<>(List.of(client), pageable, 1);
+        when(clientRepository.findAll(pageable)).thenReturn(clientPage);
+        when(clientMapper.toDTO(client)).thenReturn(responseDto);
+        Page<ClientResponseDto> result = service.getAll(pageable);
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(responseDto, result.getContent().get(0));
+        verify(clientRepository).findAll(pageable);
+        verify(clientMapper).toDTO(client);
     }
 }
