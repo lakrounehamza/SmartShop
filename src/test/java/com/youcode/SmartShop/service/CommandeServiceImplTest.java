@@ -97,4 +97,30 @@ public class CommandeServiceImplTest {
     }
 
 
+    @Test
+    void getByClientIdTest() {
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<Commande> page = new PageImpl<>(List.of(commande));
+
+        when(commandeRepository.findByClient_Id(1L, pageable)).thenReturn(page);
+        when(commandeMapper.toDTO(commande)).thenReturn(
+                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(), LocalDate.now(),
+                        BigDecimal.valueOf(200), 0, 0, BigDecimal.valueOf(200), null, OrderStatus.PENDING, BigDecimal.ZERO)
+        );
+
+        Page<CommandeResponseDto> result = commandeService.getByClientId(1L, pageable);
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void getByClientIdThrowNotFound() {
+        PageRequest pageable = PageRequest.of(0, 10);
+        when(commandeRepository.findByClient_Id(1L, pageable)).thenReturn(Page.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> commandeService.getByClientId(1L, pageable));
+    }
+
+
 }
