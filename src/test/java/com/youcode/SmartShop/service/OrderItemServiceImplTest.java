@@ -83,4 +83,27 @@ public class OrderItemServiceImplTest {
 
         assertTrue(exception.getMessage().contains("La quantite demandee depasse le stock disponible"));
     }
+
+
+
+    @Test
+    void getById() {
+        when(orderItemRepository.findById(1L)).thenReturn(Optional.of(orderItem));
+        when(orderItemMapper.toDTO(orderItem)).thenReturn(new OrderItemResponseDto(1L, 5, BigDecimal.valueOf(100), BigDecimal.valueOf(500), product));
+
+        OrderItemResponseDto result = orderItemService.getById(1L);
+
+        assertNotNull(result);
+        assertEquals(5, result.quantite());
+    }
+
+    @Test
+    void getByIdThrowNotFound() {
+        when(orderItemRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> orderItemService.getById(1L));
+    }
+
+
 }
