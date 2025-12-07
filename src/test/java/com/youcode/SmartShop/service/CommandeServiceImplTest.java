@@ -10,7 +10,6 @@ import com.youcode.SmartShop.mapper.OrderItemMapper;
 import com.youcode.SmartShop.repository.*;
 import com.youcode.SmartShop.service.impl.CommandeServiceImpl;
 import com.youcode.SmartShop.service.interfaces.IOrderItemService;
-
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -33,6 +32,7 @@ public class CommandeServiceImplTest {
     @Mock private IOrderItemService orderItemService;
     @Mock private ProductRepository productRepository;
     @Mock private OrderItemMapper orderItemMapper;
+    @Mock private CodePromoRepository codePromoRepository;
 
     @InjectMocks
     private CommandeServiceImpl commandeService;
@@ -43,7 +43,6 @@ public class CommandeServiceImplTest {
 
     @BeforeEach
     void setup() {
-
         client = new Client();
         client.setId(1L);
         client.setNiveauFidelite(CustomerTier.SILVER);
@@ -68,7 +67,8 @@ public class CommandeServiceImplTest {
         when(commandeRepository.save(commande)).thenReturn(commande);
         when(commandeMapper.toDTO(commande)).thenReturn(
                 new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(), LocalDate.now(),
-                        BigDecimal.valueOf(200), 0, 0, BigDecimal.valueOf(200), null, OrderStatus.PENDING, BigDecimal.ZERO)
+                        BigDecimal.valueOf(200), 0, 0, BigDecimal.valueOf(200), null,
+                        OrderStatus.PENDING, BigDecimal.ZERO)
         );
 
         CommandeResponseDto result = commandeService.save(request);
@@ -81,12 +81,13 @@ public class CommandeServiceImplTest {
     void getByIdTest() {
         when(commandeRepository.findById(1L)).thenReturn(Optional.of(commande));
         when(commandeMapper.toDTO(commande)).thenReturn(
-                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(), LocalDate.now(),
-                        BigDecimal.valueOf(200), 0, 0, BigDecimal.valueOf(200), null, OrderStatus.PENDING, BigDecimal.ZERO)
+                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(),
+                        LocalDate.now(), BigDecimal.valueOf(200),
+                        0, 0, BigDecimal.valueOf(200),
+                        null, OrderStatus.PENDING, BigDecimal.ZERO)
         );
 
         CommandeResponseDto result = commandeService.getById(1L);
-
         assertNotNull(result);
     }
 
@@ -96,7 +97,6 @@ public class CommandeServiceImplTest {
         assertThrows(NotFoundException.class, () -> commandeService.getById(1L));
     }
 
-
     @Test
     void getByClientIdTest() {
         PageRequest pageable = PageRequest.of(0, 10);
@@ -104,12 +104,13 @@ public class CommandeServiceImplTest {
 
         when(commandeRepository.findByClient_Id(1L, pageable)).thenReturn(page);
         when(commandeMapper.toDTO(commande)).thenReturn(
-                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(), LocalDate.now(),
-                        BigDecimal.valueOf(200), 0, 0, BigDecimal.valueOf(200), null, OrderStatus.PENDING, BigDecimal.ZERO)
+                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(),
+                        LocalDate.now(), BigDecimal.valueOf(200),
+                        0, 0, BigDecimal.valueOf(200),
+                        null, OrderStatus.PENDING, BigDecimal.ZERO)
         );
 
         Page<CommandeResponseDto> result = commandeService.getByClientId(1L, pageable);
-
         assertEquals(1, result.getTotalElements());
     }
 
@@ -117,14 +118,9 @@ public class CommandeServiceImplTest {
     void getByClientIdThrowNotFound() {
         PageRequest pageable = PageRequest.of(0, 10);
         when(commandeRepository.findByClient_Id(1L, pageable)).thenReturn(Page.empty());
-
         assertThrows(NotFoundException.class,
                 () -> commandeService.getByClientId(1L, pageable));
     }
-
-    // -------------------------------------------------------------
-    //                      TEST GET ALL
-    // -------------------------------------------------------------
 
     @Test
     void getAll_ShouldReturnPage() {
@@ -133,12 +129,13 @@ public class CommandeServiceImplTest {
 
         when(commandeRepository.findAll(pageable)).thenReturn(page);
         when(commandeMapper.toDTO(commande)).thenReturn(
-                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(), LocalDate.now(),
-                        BigDecimal.valueOf(200), 0, 0, BigDecimal.valueOf(200), null, OrderStatus.PENDING, BigDecimal.ZERO)
+                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(),
+                        LocalDate.now(), BigDecimal.valueOf(200),
+                        0, 0, BigDecimal.valueOf(200),
+                        null, OrderStatus.PENDING, BigDecimal.ZERO)
         );
 
         Page<CommandeResponseDto> result = commandeService.getAll(pageable);
-
         assertEquals(1, result.getTotalElements());
     }
 
@@ -149,10 +146,8 @@ public class CommandeServiceImplTest {
                 () -> commandeService.getAll(PageRequest.of(0, 10)));
     }
 
-
     @Test
     void getClientStatisticTest() {
-
         when(clientRepository.existsById(1L)).thenReturn(true);
         when(commandeRepository.findCountByClinet_id(1L)).thenReturn(5);
         when(commandeRepository.findCumuleByClient_Id(1L)).thenReturn(Optional.of(BigDecimal.valueOf(5000)));
@@ -160,7 +155,6 @@ public class CommandeServiceImplTest {
         when(commandeRepository.findLastDateByClient_id(1L)).thenReturn(Optional.of(LocalDate.now()));
 
         ClinetStatisticResponseDto stats = commandeService.getClientStatistic(1L);
-
         assertEquals(5, stats.total());
     }
 
@@ -173,54 +167,63 @@ public class CommandeServiceImplTest {
 
     @Test
     void saveWithMultiOrderItemTest() {
-
         OrderItemCreateRequestDto itemDto = new OrderItemCreateRequestDto(1, 2);
         CommandeCreateRequestDto cmdRequest = new CommandeCreateRequestDto(1L, null);
-        CommandeCreateWithMultiItemRequestDto request = new CommandeCreateWithMultiItemRequestDto(cmdRequest, List.of(itemDto));
-        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+        CommandeCreateWithMultiItemRequestDto request =
+                new CommandeCreateWithMultiItemRequestDto(cmdRequest, List.of(itemDto));
 
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
         when(commandeMapper.toEntity(cmdRequest)).thenReturn(commande);
         when(commandeRepository.getCountCommandePending(anyLong())).thenReturn(0);
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
 
         OrderItem item = new OrderItem();
+        item.setProduct(product);
         item.setQuantite(2);
         when(orderItemMapper.toEntity(itemDto)).thenReturn(item);
 
         when(commandeRepository.save(any())).thenReturn(commande);
-        when(orderItemService.save(any())).thenReturn(new OrderItemResponseDto(1L,1,BigDecimal.valueOf(200),BigDecimal.valueOf(200),product));
+        when(orderItemService.save(any())).thenReturn(
+                new OrderItemResponseDto(1L, 1,
+                        BigDecimal.valueOf(200), BigDecimal.valueOf(200), product)
+        );
 
         when(commandeMapper.toDTO(commande)).thenReturn(
-                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(), LocalDate.now(),
-                        BigDecimal.valueOf(200), 0, 0, BigDecimal.valueOf(200), null, OrderStatus.PENDING, BigDecimal.ZERO)
+                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(),
+                        LocalDate.now(), BigDecimal.valueOf(200),
+                        0, 0, BigDecimal.valueOf(200),
+                        null, OrderStatus.PENDING, BigDecimal.ZERO)
         );
 
         CommandeResponseDto result = commandeService.saveWithMultiOrderItem(request);
-
         assertNotNull(result);
     }
 
-
     @Test
     void saveWithMultiOrderItemThrowWhenStockInsufficient() {
-
         OrderItemCreateRequestDto itemDto = new OrderItemCreateRequestDto(1, 10);
         CommandeCreateRequestDto cmdRequest = new CommandeCreateRequestDto(1L, null);
-        CommandeCreateWithMultiItemRequestDto request = new CommandeCreateWithMultiItemRequestDto(cmdRequest, List.of(itemDto));
+        CommandeCreateWithMultiItemRequestDto request =
+                new CommandeCreateWithMultiItemRequestDto(cmdRequest, List.of(itemDto));
 
         when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
-
         when(commandeMapper.toEntity(cmdRequest)).thenReturn(commande);
         when(commandeRepository.getCountCommandePending(anyLong())).thenReturn(0);
+        when(commandeRepository.save(any(Commande.class))).thenReturn(commande);
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
 
-        when(orderItemMapper.toEntity(itemDto)).thenReturn(new OrderItem());
-        when(orderItemService.save(any()))
-                .thenThrow(new ProductStockUnavailableException("stock insuffisant"));
-        when(commandeRepository.save(any())).thenReturn(commande);
+        OrderItem item = new OrderItem();
+        item.setProduct(product);
+        item.setQuantite(10);
+        when(orderItemMapper.toEntity(itemDto)).thenReturn(item);
+
+        doThrow(new ProductStockUnavailableException("stock insuffisant"))
+                .when(orderItemService).save(any());
 
         assertThrows(CommandeCreationFailedException.class,
                 () -> commandeService.saveWithMultiOrderItem(request));
-    }
 
+        verify(commandeRepository, times(2)).save(any(Commande.class));
+        verify(orderItemService, times(1)).save(any());
+    }
 }
