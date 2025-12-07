@@ -95,5 +95,49 @@ public class ProduitServiceImplTest {
 
         verify(productRepository).existsById(5L);
     }
+    @Test
+    public void getByIdTest() {
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productMapper.toDTO(product)).thenReturn(responseDto);
 
+        ProduitResponseDto result = produitService.getById(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.id());
+        verify(productRepository).findById(1L);
+    }
+    @Test
+    public void getById_NotFoundTest() {
+        when(productRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> produitService.getById(99L));
+
+        verify(productRepository).findById(99L);
+    }
+    @Test
+    public void getAllTest() {
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<Product> page = new PageImpl<>(List.of(product));
+
+        when(productRepository.findAll(pageable)).thenReturn(page);
+        when(productMapper.toDTO(product)).thenReturn(responseDto);
+
+        Page<ProduitResponseDto> result = produitService.getAll(pageable);
+
+        assertEquals(1, result.getTotalElements());
+        assertEquals("name", result.getContent().get(0).nom());
+
+        verify(productRepository).findAll(pageable);
+    }
+    @Test
+    public void getAll_EmptyTest() {
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<Product> emptyPage = new PageImpl<>(List.of());
+
+        when(productRepository.findAll(pageable)).thenReturn(emptyPage);
+
+        assertThrows(NotFoundException.class, () -> produitService.getAll(pageable));
+
+        verify(productRepository).findAll(pageable);
+    }
 }
