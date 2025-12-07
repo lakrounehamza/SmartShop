@@ -122,5 +122,55 @@ public class CommandeServiceImplTest {
                 () -> commandeService.getByClientId(1L, pageable));
     }
 
+    // -------------------------------------------------------------
+    //                      TEST GET ALL
+    // -------------------------------------------------------------
+
+    @Test
+    void getAll_ShouldReturnPage() {
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<Commande> page = new PageImpl<>(List.of(commande));
+
+        when(commandeRepository.findAll(pageable)).thenReturn(page);
+        when(commandeMapper.toDTO(commande)).thenReturn(
+                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(), LocalDate.now(),
+                        BigDecimal.valueOf(200), 0, 0, BigDecimal.valueOf(200), null, OrderStatus.PENDING, BigDecimal.ZERO)
+        );
+
+        Page<CommandeResponseDto> result = commandeService.getAll(pageable);
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void getAll_ShouldThrowNotFound() {
+        when(commandeRepository.findAll(any(Pageable.class))).thenReturn(Page.empty());
+        assertThrows(NotFoundException.class,
+                () -> commandeService.getAll(PageRequest.of(0, 10)));
+    }
+
+
+    @Test
+    void getClientStatisticTest() {
+
+        when(clientRepository.existsById(1L)).thenReturn(true);
+        when(commandeRepository.findCountByClinet_id(1L)).thenReturn(5);
+        when(commandeRepository.findCumuleByClient_Id(1L)).thenReturn(Optional.of(BigDecimal.valueOf(5000)));
+        when(commandeRepository.findFirstDateByClient_id(1L)).thenReturn(Optional.of(LocalDate.now().minusDays(10)));
+        when(commandeRepository.findLastDateByClient_id(1L)).thenReturn(Optional.of(LocalDate.now()));
+
+        ClinetStatisticResponseDto stats = commandeService.getClientStatistic(1L);
+
+        assertEquals(5, stats.total());
+    }
+
+    @Test
+    void getClientStatisticThrowNotFound() {
+        when(clientRepository.existsById(1L)).thenReturn(false);
+        assertThrows(NotFoundException.class,
+                () -> commandeService.getClientStatistic(1L));
+    }
+
+
 
 }
