@@ -171,6 +171,56 @@ public class CommandeServiceImplTest {
                 () -> commandeService.getClientStatistic(1L));
     }
 
+    @Test
+    void saveWithMultiOrderItemTest() {
 
+        OrderItemCreateRequestDto itemDto = new OrderItemCreateRequestDto(1, 2);
+        CommandeCreateRequestDto cmdRequest = new CommandeCreateRequestDto(1L, null);
+        CommandeCreateWithMultiItemRequestDto request = new CommandeCreateWithMultiItemRequestDto(cmdRequest, List.of(itemDto));
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+
+        when(commandeMapper.toEntity(cmdRequest)).thenReturn(commande);
+        when(commandeRepository.getCountCommandePending(anyLong())).thenReturn(0);
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+
+        OrderItem item = new OrderItem();
+        item.setQuantite(2);
+        when(orderItemMapper.toEntity(itemDto)).thenReturn(item);
+
+        when(commandeRepository.save(any())).thenReturn(commande);
+        when(orderItemService.save(any())).thenReturn(new OrderItemResponseDto(1L,1,BigDecimal.valueOf(200),BigDecimal.valueOf(200),product));
+
+        when(commandeMapper.toDTO(commande)).thenReturn(
+                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(), LocalDate.now(),
+                        BigDecimal.valueOf(200), 0, 0, BigDecimal.valueOf(200), null, OrderStatus.PENDING, BigDecimal.ZERO)
+        );
+
+        CommandeResponseDto result = commandeService.saveWithMultiOrderItem(request);
+
+        assertNotNull(result);
+    }
+
+
+    @Test
+    void saveWithMultiOrderItemThrowWhenStockInsufficient() {
+
+        OrderItemCreateRequestDto itemDto = new OrderItemCreateRequestDto(1, 10);
+        CommandeCreateRequestDto cmdRequest = new CommandeCreateRequestDto(1L, null);
+        CommandeCreateWithMultiItemRequestDto request = new CommandeCreateWithMultiItemRequestDto(cmdRequest, List.of(itemDto));
+
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+
+        when(commandeMapper.toEntity(cmdRequest)).thenReturn(commande);
+        when(commandeRepository.getCountCommandePending(anyLong())).thenReturn(0);
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+
+        when(orderItemMapper.toEntity(itemDto)).thenReturn(new OrderItem());
+        when(orderItemService.save(any()))
+                .thenThrow(new ProductStockUnavailableException("stock insuffisant"));
+        when(commandeRepository.save(any())).thenReturn(commande);
+
+        assertThrows(CommandeCreationFailedException.class,
+                () -> commandeService.saveWithMultiOrderItem(request));
+    }
 
 }
