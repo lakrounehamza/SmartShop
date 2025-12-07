@@ -105,5 +105,23 @@ public class OrderItemServiceImplTest {
                 () -> orderItemService.getById(1L));
     }
 
+    @Test
+    void getByCommadeIdTest() {
+        Page<OrderItem> page = new PageImpl<>(List.of(orderItem));
+        when(orderItemRepository.findByCommandeId(1L, PageRequest.of(0, 10))).thenReturn(page);
+        when(orderItemMapper.toDTO(orderItem)).thenReturn(new OrderItemResponseDto(1L, 5, BigDecimal.valueOf(100), BigDecimal.valueOf(500), product));
 
+        Page<OrderItemResponseDto> result = orderItemService.getByCommadeId(1L, PageRequest.of(0, 10));
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void getByCommadeIdThrowNotFound() {
+        Page<OrderItem> emptyPage = Page.empty();
+        when(orderItemRepository.findByCommandeId(1L, PageRequest.of(0, 10))).thenReturn(emptyPage);
+
+        assertThrows(NotFoundException.class,
+                () -> orderItemService.getByCommadeId(1L, PageRequest.of(0, 10)));
+    }
 }
