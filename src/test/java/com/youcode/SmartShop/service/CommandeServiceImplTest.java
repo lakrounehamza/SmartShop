@@ -29,6 +29,10 @@ public class CommandeServiceImplTest {
 
     @Mock private CommandeMapper commandeMapper;
     @Mock private CommandeRepository commandeRepository;
+    @Mock private ClientRepository clientRepository;
+    @Mock private IOrderItemService orderItemService;
+    @Mock private ProductRepository productRepository;
+    @Mock private OrderItemMapper orderItemMapper;
 
     @InjectMocks
     private CommandeServiceImpl commandeService;
@@ -73,7 +77,24 @@ public class CommandeServiceImplTest {
         verify(commandeRepository).save(commande);
     }
 
+    @Test
+    void getByIdTest() {
+        when(commandeRepository.findById(1L)).thenReturn(Optional.of(commande));
+        when(commandeMapper.toDTO(commande)).thenReturn(
+                new CommandeResponseDto(1L, 1L, new ArrayList<>(), new ArrayList<>(), LocalDate.now(),
+                        BigDecimal.valueOf(200), 0, 0, BigDecimal.valueOf(200), null, OrderStatus.PENDING, BigDecimal.ZERO)
+        );
 
+        CommandeResponseDto result = commandeService.getById(1L);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    void getByIdThrowNotFound() {
+        when(commandeRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> commandeService.getById(1L));
+    }
 
 
 }
