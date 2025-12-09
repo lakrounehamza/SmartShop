@@ -44,13 +44,13 @@ public class CommandeController {
     }
 
     @GetMapping
-    public ResponseEntity<String> getAll(
-            @PathVariable Long id,
+    public ResponseEntity<Page<CommandeResponseDto>> getAll(
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Page<CommandeResponseDto> response = service.getAll(pageable);
-        return ResponseEntity.status(HttpStatus.OK).body("hello");
+        return ResponseEntity.ok(response);
     }
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<CommandeResponseDto> updateStatus(
             @PathVariable Long id,

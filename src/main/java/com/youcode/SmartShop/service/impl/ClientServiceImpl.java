@@ -80,7 +80,7 @@ public class ClientServiceImpl implements IClientService {
 //        clientRepository.deleteById(id);
 //        userRepository.deleteById(client.getUser().getId());
         User  user  = userRepository.findById(client.getUser().getId()).get();
-        user.setPassword(UUID.randomUUID().toString());
+        user.setPassword( BCrypt.hashpw(UUID.randomUUID().toString(), BCrypt.gensalt()));
         user.setRole(null);
         userRepository.save(user);
     }
