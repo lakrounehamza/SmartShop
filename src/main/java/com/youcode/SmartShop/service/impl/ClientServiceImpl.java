@@ -21,6 +21,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @AllArgsConstructor
 public class ClientServiceImpl implements IClientService {
@@ -74,7 +76,13 @@ public class ClientServiceImpl implements IClientService {
     public void deleteById(Long  id){
         if(!clientRepository.existsById(id))
             throw new NotFoundException("client introuvable avec l'id "+id);
-        clientRepository.deleteById(id);
+        Client client = clientRepository.findById(id).get();
+//        clientRepository.deleteById(id);
+//        userRepository.deleteById(client.getUser().getId());
+        User  user  = userRepository.findById(client.getUser().getId()).get();
+        user.setPassword(UUID.randomUUID().toString());
+        user.setRole(null);
+        userRepository.save(user);
     }
 
 }

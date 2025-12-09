@@ -23,6 +23,8 @@ public class AuthService implements IAuthService {
 
         User user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new NotFoundException("username incorrect."));
+        if (user.getRole()==null)
+            throw new NotFoundException(" username  est suprimer");
         if (!BCrypt.checkpw(request.password(), user.getPassword())) {
             throw new IncorrectPasswordException("password incorrect.");
         }
