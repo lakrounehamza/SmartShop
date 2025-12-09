@@ -1,6 +1,7 @@
 package com.youcode.SmartShop.controller;
 
 import com.youcode.SmartShop.dtos.request.ProduitCreateRequestDto;
+import com.youcode.SmartShop.dtos.request.ProduitUpdateRequestDto;
 import com.youcode.SmartShop.dtos.request.StockProduitUpdateRequestDto;
 import com.youcode.SmartShop.dtos.response.ProduitResponseDto;
 import com.youcode.SmartShop.entity.Product;
@@ -45,5 +46,11 @@ public class ProductController {
     @DeleteMapping("{id}")
     public ResponseEntity<Product>  delete(@PathVariable Long  id){
         return ResponseEntity.status(HttpStatus.OK).body(productService.delete(id));
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<ProduitResponseDto>  UpdateProduct(@PathVariable Long id, @Valid @RequestBody ProduitUpdateRequestDto requst){
+        ProduitResponseDto response = productService.update(id,requst);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

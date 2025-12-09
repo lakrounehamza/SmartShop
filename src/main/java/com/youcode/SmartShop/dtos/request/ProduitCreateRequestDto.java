@@ -15,5 +15,4 @@ public record ProduitCreateRequestDto(
         BigDecimal prix,
         @NotNull(message = "Le stock ne peut pas etre nul.")
         @PositiveOrZero(message = "Le stock ne peut pas etre negatif.")
-        int stock
-) {}
+        int stock) {}

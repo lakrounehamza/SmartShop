@@ -1,6 +1,7 @@
 package com.youcode.SmartShop.service.interfaces;
 
 import com.youcode.SmartShop.dtos.request.ProduitCreateRequestDto;
+import com.youcode.SmartShop.dtos.request.ProduitUpdateRequestDto;
 import com.youcode.SmartShop.dtos.request.StockProduitUpdateRequestDto;
 import com.youcode.SmartShop.dtos.response.ProduitResponseDto;
 import com.youcode.SmartShop.entity.Product;
@@ -13,6 +14,6 @@ public interface IProductService {
     Page<ProduitResponseDto> getAll(Pageable pageable);
     ProduitResponseDto getById(Long id);
     Product delete(Long id);
-    ProduitResponseDto update(Long id, ProduitCreateRequestDto request);
+    ProduitResponseDto update(Long id, ProduitUpdateRequestDto request);
 
 }

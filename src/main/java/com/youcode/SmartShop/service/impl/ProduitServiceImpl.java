@@ -1,6 +1,7 @@
 package com.youcode.SmartShop.service.impl;
 
 import com.youcode.SmartShop.dtos.request.ProduitCreateRequestDto;
+import com.youcode.SmartShop.dtos.request.ProduitUpdateRequestDto;
 import com.youcode.SmartShop.dtos.request.StockProduitUpdateRequestDto;
 import com.youcode.SmartShop.dtos.response.ProduitResponseDto;
 import com.youcode.SmartShop.entity.Product;
@@ -63,5 +64,16 @@ public class ProduitServiceImpl implements IProductService {
         }
         throw new NotFoundException("produit introuvable avec l'id" + id);
     }
-
+    @Override
+    public ProduitResponseDto  update(Long id , ProduitUpdateRequestDto requestDto){
+        if(!productRepository.existsById(id))
+            throw  new NotFoundException(" produit non trouve");
+        Product product = productRepository.findById(id).get();
+        product.setStock(requestDto.stock());
+        product.setPrix(requestDto.prix());
+        product.setDeleted(requestDto.deleted());
+        product.setNom(requestDto.nom());
+        productRepository.save(product);
+        return productMapper.toDTO(product);
+    }
 }
