@@ -13,5 +13,5 @@ public record OrderItemResponseDto(
         BigDecimal prix,
         BigDecimal totalLigne,
         //long commande_id,
-        Product product) {
+        ProduitResponseDto product) {
 }

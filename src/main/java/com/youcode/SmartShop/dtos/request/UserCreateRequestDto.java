@@ -14,7 +14,7 @@ public record UserCreateRequestDto(
         @Size(min = 8, message = "Le mot de passe doit contenir au moins 8 caracteres.")
         @Pattern(regexp = ".*[A-Z].*", message = "Le mot de passe doit contenir au moins une lettre majuscule.")
         @Pattern(regexp = ".*[0-9].*", message = "Le mot de passe doit contenir au moins un chiffre.")
-        String password,
-        @NotNull(message = "Le role de user ne peut pas etre null.")
-        UserRole role
+        String password
+//        @NotNull(message = "Le role de user ne peut pas etre null.")
+//        UserRole role
 ) {}

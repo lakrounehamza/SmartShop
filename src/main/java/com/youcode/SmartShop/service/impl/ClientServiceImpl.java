@@ -6,6 +6,7 @@ import com.youcode.SmartShop.dtos.response.ClientResponseDto;
 import com.youcode.SmartShop.entity.Client;
 import com.youcode.SmartShop.entity.User;
 import com.youcode.SmartShop.enums.CustomerTier;
+import com.youcode.SmartShop.enums.UserRole;
 import com.youcode.SmartShop.exception.DuplicateClientException;
 import com.youcode.SmartShop.exception.NotFoundException;
 import com.youcode.SmartShop.mapper.ClientMapper;
@@ -39,6 +40,7 @@ public class ClientServiceImpl implements IClientService {
         User user = userMapper.toEntity(request.user());
         String hashedPassword = BCrypt.hashpw(request.user().password(), BCrypt.gensalt());
         user.setPassword(hashedPassword);
+        user.setRole(UserRole.CLIENT);
         User userSaved = userRepository.save(user);
         client.setUser(userSaved);
         client.setNiveauFidelite(CustomerTier.BASIC);

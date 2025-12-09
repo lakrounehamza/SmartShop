@@ -10,4 +10,4 @@ public record ClientResponseDto(
         String nom,
         String email,
         CustomerTier niveauFidelite,
-        User user) {}
+        UserResponseDto user) {}
