@@ -102,7 +102,7 @@ public class CommandeServiceImpl implements ICommandeService {
 
         List<OrderItem> listItem = orderItemRequest.stream().map(item -> {
             OrderItem entity = orderItemMapper.toEntity(item);
-            Product product = productRepository.findById(item.produit_id()).orElse(new Product(item.produit_id(), "not exist", BigDecimal.ZERO, 0));
+            Product product = productRepository.findById(item.produit_id()).orElse(new Product(item.produit_id(), "not exist", BigDecimal.ZERO, 0,false));
             BigDecimal totalline = BigDecimal.valueOf(item.quantite()).multiply(product.getPrix());
             entity.setTotalLigne(totalline);
             entity.setPrix(product.getPrix());

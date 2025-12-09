@@ -3,6 +3,7 @@ package com.youcode.SmartShop.controller;
 import com.youcode.SmartShop.dtos.request.ProduitCreateRequestDto;
 import com.youcode.SmartShop.dtos.request.StockProduitUpdateRequestDto;
 import com.youcode.SmartShop.dtos.response.ProduitResponseDto;
+import com.youcode.SmartShop.entity.Product;
 import com.youcode.SmartShop.service.interfaces.IProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -40,5 +41,9 @@ public class ProductController {
         ProduitResponseDto response = productService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
+    }
+    @DeleteMapping("{id}")
+    public ResponseEntity<Product>  delete(@PathVariable Long  id){
+        return ResponseEntity.status(HttpStatus.OK).body(productService.delete(id));
     }
 }

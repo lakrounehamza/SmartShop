@@ -23,4 +23,5 @@ public class Product {
     private String nom;
     private BigDecimal prix;
     private int stock;
+    private boolean deleted = false;
 }

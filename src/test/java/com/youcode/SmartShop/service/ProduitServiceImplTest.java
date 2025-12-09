@@ -43,7 +43,7 @@ public class ProduitServiceImplTest {
 
     @BeforeEach
     public void setUp(){
-        product  = new Product(1L,"name", BigDecimal.valueOf(12),1);
+        product  = new Product(1L,"name", BigDecimal.valueOf(12),1,true);
         requestDto = new ProduitCreateRequestDto("name",BigDecimal.valueOf(12),1);
         responseDto  =  new ProduitResponseDto(1L,"name",BigDecimal.valueOf(12),1);
     }
@@ -67,7 +67,7 @@ public class ProduitServiceImplTest {
     public void updateStockTest() {
         StockProduitUpdateRequestDto requestDto1 = new StockProduitUpdateRequestDto(12);
 
-        Product updatedProduct = new Product(1L, "name", BigDecimal.valueOf(12), 12);
+        Product updatedProduct = new Product(1L, "name", BigDecimal.valueOf(12), 12,true);
         ProduitResponseDto updatedResponse = new ProduitResponseDto(1L, "name", BigDecimal.valueOf(12), 12);
 
         when(productRepository.existsById(1L)).thenReturn(true);

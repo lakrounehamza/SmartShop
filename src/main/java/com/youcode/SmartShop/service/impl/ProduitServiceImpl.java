@@ -9,10 +9,14 @@ import com.youcode.SmartShop.mapper.ProductMapper;
 import com.youcode.SmartShop.repository.ProductRepository;
 import com.youcode.SmartShop.service.interfaces.IProductService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ProduitServiceImpl implements IProductService {
@@ -37,7 +41,7 @@ public class ProduitServiceImpl implements IProductService {
 
     @Override
     public Page<ProduitResponseDto> getAll(Pageable pageable) {
-        Page<Product> products  = productRepository.findAll(pageable);
+        Page<Product> products  = productRepository.findByDeletedFalse(pageable);
         if(products.getTotalElements()<1)
             throw  new NotFoundException("aucun produit trouve");
         return products.map(productMapper::toDTO);
@@ -48,4 +52,16 @@ public class ProduitServiceImpl implements IProductService {
         return productMapper.toDTO(productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("produit introuvable avec l'id" + id)));
     }
+    @Override
+    public Product delete(Long id){
+        Optional<Product>   productOptional = productRepository.findByIdAndDeletedFalse(id);
+        if(productOptional.isPresent()){
+            Product product = productOptional.get();
+            product.setDeleted(false);
+            productRepository.save(product);
+            return  product;
+        }
+        throw new NotFoundException("produit introuvable avec l'id" + id);
+    }
+
 }
