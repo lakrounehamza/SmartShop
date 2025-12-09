@@ -5,6 +5,8 @@ import com.youcode.SmartShop.dtos.response.LoginResponseDto;
 import com.youcode.SmartShop.service.interfaces.IAuthService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,5 +25,9 @@ public class AuthController {
     public String logout() {
         authService.logout();
         return "Deconnexion reussie";
+    }
+    @GetMapping("/profile")
+    public ResponseEntity<Object>  profile(){
+        return ResponseEntity.status(HttpStatus.OK).body(authService.profile());
     }
 }

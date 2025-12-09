@@ -3,10 +3,15 @@ package com.youcode.SmartShop.service.impl;
 import com.youcode.SmartShop.dtos.request.LoginRequestDto;
 import com.youcode.SmartShop.dtos.response.LoginResponseDto;
 import com.youcode.SmartShop.entity.User;
+import com.youcode.SmartShop.enums.UserRole;
 import com.youcode.SmartShop.exception.IncorrectPasswordException;
 import com.youcode.SmartShop.exception.NotFoundException;
+import com.youcode.SmartShop.mapper.ClientMapper;
+import com.youcode.SmartShop.mapper.UserMapper;
+import com.youcode.SmartShop.repository.ClientRepository;
 import com.youcode.SmartShop.repository.UserRepository;
 import com.youcode.SmartShop.service.interfaces.IAuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
@@ -17,6 +22,9 @@ public class AuthService implements IAuthService {
 
     private final HttpSession session;
     private final UserRepository userRepository;
+    private  final ClientRepository  clientRepository;
+    private final ClientMapper clientMapper;
+    private final UserMapper userMapper;
 
     @Override
     public LoginResponseDto login(LoginRequestDto request) {
@@ -43,5 +51,15 @@ public class AuthService implements IAuthService {
     @Override
     public void logout() {
         session.invalidate();
+    }
+    public  Object profile(){
+         Long id= Long.parseLong(session.getAttribute("id").toString());
+         UserRole role = UserRole.valueOf(session.getAttribute("role").toString());
+         if(role.equals(UserRole.ADMIN)){
+            return userMapper.toDTO(userRepository.findById(id).get());
+         }
+         else
+             return clientMapper.toDTO(clientRepository.findById(id).get());
+
     }
 }
