@@ -4,6 +4,7 @@ import com.youcode.SmartShop.dtos.request.ClientCreateRequestDto;
 import com.youcode.SmartShop.dtos.request.NiveauFideliteUpdateDto;
 import com.youcode.SmartShop.dtos.request.UserCreateRequestDto;
 import com.youcode.SmartShop.dtos.response.ClientResponseDto;
+import com.youcode.SmartShop.dtos.response.UserResponseDto;
 import com.youcode.SmartShop.entity.Client;
 import com.youcode.SmartShop.entity.User;
 import com.youcode.SmartShop.enums.CustomerTier;
@@ -74,7 +75,7 @@ public class ClientServiceImplTest {
         requestDto = new ClientCreateRequestDto(
                 "lakroune",
                 "email@gmail.com",
-                new UserCreateRequestDto("hamza", "plainPassword", UserRole.CLIENT)
+                new UserCreateRequestDto("hamza", "plainPassword")
         );
 
         responseDto = new ClientResponseDto(
@@ -82,7 +83,7 @@ public class ClientServiceImplTest {
                 "lakroune",
                 "email@gmail.com",
                 CustomerTier.BASIC,
-                user
+                new UserResponseDto("hamza",UserRole.CLIENT)
         );
     }
 

@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -119,25 +120,24 @@ public class ProduitServiceImplTest {
         PageRequest pageable = PageRequest.of(0, 10);
         Page<Product> page = new PageImpl<>(List.of(product));
 
-        when(productRepository.findAll(pageable)).thenReturn(page);
+        when(productRepository.findByDeletedFalse(any(Pageable.class))).thenReturn(page);
         when(productMapper.toDTO(product)).thenReturn(responseDto);
-
         Page<ProduitResponseDto> result = produitService.getAll(pageable);
 
         assertEquals(1, result.getTotalElements());
         assertEquals("name", result.getContent().get(0).nom());
-
-        verify(productRepository).findAll(pageable);
+        verify(productRepository).findByDeletedFalse(any(Pageable.class));
     }
     @Test
     public void getAll_EmptyTest() {
         PageRequest pageable = PageRequest.of(0, 10);
         Page<Product> emptyPage = new PageImpl<>(List.of());
 
-        when(productRepository.findAll(pageable)).thenReturn(emptyPage);
-
-        assertThrows(NotFoundException.class, () -> produitService.getAll(pageable));
-
-        verify(productRepository).findAll(pageable);
+        when(productRepository.findByDeletedFalse(any(Pageable.class)))
+                .thenReturn(emptyPage);
+        assertThrows(NotFoundException.class,
+                () -> produitService.getAll(pageable));
+        verify(productRepository).findByDeletedFalse(any(Pageable.class));
     }
+
 }

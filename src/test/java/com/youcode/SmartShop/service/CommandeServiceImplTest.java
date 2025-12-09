@@ -47,7 +47,7 @@ public class CommandeServiceImplTest {
         client.setId(1L);
         client.setNiveauFidelite(CustomerTier.SILVER);
 
-        product = new Product(1L, "Produit A", BigDecimal.valueOf(100), 50);
+        product = new Product(1L, "Produit A", BigDecimal.valueOf(100), 50,true);
 
         commande = new Commande();
         commande.setId(1L);
@@ -185,7 +185,7 @@ public class CommandeServiceImplTest {
         when(commandeRepository.save(any())).thenReturn(commande);
         when(orderItemService.save(any())).thenReturn(
                 new OrderItemResponseDto(1L, 1,
-                        BigDecimal.valueOf(200), BigDecimal.valueOf(200), product)
+                        BigDecimal.valueOf(200), BigDecimal.valueOf(200),new ProduitResponseDto(1L,"produit A",BigDecimal.ZERO,1))
         );
 
         when(commandeMapper.toDTO(commande)).thenReturn(

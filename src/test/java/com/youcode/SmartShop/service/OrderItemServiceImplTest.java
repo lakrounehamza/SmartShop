@@ -1,5 +1,6 @@
 package com.youcode.SmartShop.service;
 import com.youcode.SmartShop.dtos.response.OrderItemResponseDto;
+import com.youcode.SmartShop.dtos.response.ProduitResponseDto;
 import com.youcode.SmartShop.entity.OrderItem;
 import com.youcode.SmartShop.entity.Product;
 import com.youcode.SmartShop.exception.NotFoundException;
@@ -39,7 +40,7 @@ public class OrderItemServiceImplTest {
 
     @BeforeEach
     void setup() {
-        product = new Product(1L, "nom  prduit", BigDecimal.valueOf(100), 10);
+        product = new Product(1L, "nom  prduit", BigDecimal.valueOf(100), 10,true);
 
         orderItem = new OrderItem();
         orderItem.setId(1L);
@@ -52,7 +53,7 @@ public class OrderItemServiceImplTest {
         when(productRepository.existsById(product.getId())).thenReturn(true);
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
         when(orderItemRepository.save(orderItem)).thenReturn(orderItem);
-        when(orderItemMapper.toDTO(orderItem)).thenReturn(new OrderItemResponseDto(1L, 5, BigDecimal.valueOf(100), BigDecimal.valueOf(500), product));
+        when(orderItemMapper.toDTO(orderItem)).thenReturn(new OrderItemResponseDto(1L, 5, BigDecimal.valueOf(100), BigDecimal.valueOf(500), new ProduitResponseDto(1L,"produit",BigDecimal.ZERO,1)));
 
         OrderItemResponseDto result = orderItemService.save(orderItem);
 
@@ -89,7 +90,7 @@ public class OrderItemServiceImplTest {
     @Test
     void getById() {
         when(orderItemRepository.findById(1L)).thenReturn(Optional.of(orderItem));
-        when(orderItemMapper.toDTO(orderItem)).thenReturn(new OrderItemResponseDto(1L, 5, BigDecimal.valueOf(100), BigDecimal.valueOf(500), product));
+        when(orderItemMapper.toDTO(orderItem)).thenReturn(new OrderItemResponseDto(1L, 5, BigDecimal.valueOf(100), BigDecimal.valueOf(500), new ProduitResponseDto(1L,"produit",BigDecimal.ZERO,1)));
 
         OrderItemResponseDto result = orderItemService.getById(1L);
 
@@ -109,7 +110,7 @@ public class OrderItemServiceImplTest {
     void getByCommadeIdTest() {
         Page<OrderItem> page = new PageImpl<>(List.of(orderItem));
         when(orderItemRepository.findByCommandeId(1L, PageRequest.of(0, 10))).thenReturn(page);
-        when(orderItemMapper.toDTO(orderItem)).thenReturn(new OrderItemResponseDto(1L, 5, BigDecimal.valueOf(100), BigDecimal.valueOf(500), product));
+        when(orderItemMapper.toDTO(orderItem)).thenReturn(new OrderItemResponseDto(1L, 5, BigDecimal.valueOf(100), BigDecimal.valueOf(500), new ProduitResponseDto(1L,"produit",BigDecimal.ZERO,1)));
 
         Page<OrderItemResponseDto> result = orderItemService.getByCommadeId(1L, PageRequest.of(0, 10));
 
