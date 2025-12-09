@@ -76,6 +76,8 @@ public class CommandeServiceImpl implements ICommandeService {
     public ClinetStatisticResponseDto getClientStatistic(Long id) {
         if (!clientRepository.existsById(id))
             throw new NotFoundException("client introuvable avec l'id " + id);
+        if(commandeRepository.findCountByClinet_id(id)==0)
+            return  new ClinetStatisticResponseDto(0,BigDecimal.ZERO,null,null);
         return new ClinetStatisticResponseDto(commandeRepository.findCountByClinet_id(id), commandeRepository.findCumuleByClient_Id(id).get(), commandeRepository.findFirstDateByClient_id(id).get(), commandeRepository.findLastDateByClient_id(id).get());
     }
 
